@@ -1,0 +1,49 @@
+﻿<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Demo</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <script>
+        window.onload = function () {
+            var chart = new CanvasJS.Chart("chartContainer", {
+                animationEnabled: true,
+                theme: "light2",
+                title: {
+                    text: "Simple Line Chart"
+                },
+                axisY: {
+                    includeZero: false
+                },
+                data: [{
+                    type: "line",
+                    dataPoints: [
+                        { y: 450 },
+                        { y: 414 },
+                        { y: 520, indexLabel: "highest", markerColor: "red", markerType: "triangle" },
+                        { y: 460 },
+                        { y: 450 },
+                        { y: 500 },
+                        { y: 480 },
+                        { y: 480 },
+                        { y: 410, indexLabel: "lowest", markerColor: "DarkSlateGrey", markerType: "cross" },
+                        { y: 500 },
+                        { y: 480 },
+                        { y: 510 }
+                    ]
+                }]
+            });
+            chart.render();
+        }
+    </script>
+</head>
+<body>
+    <h1 style="text-align:center">Control LED Flash and Show Car Velocity.</h1><br />
+    <form action="/" method="POST" enctype="text/plain" target="tempFrame">
+        <input type="text" name="delayTime" value="5" style="height:40px;width:100px;"/><br /><br />
+        <input type="submit" value="Yellow LED Flash" style="height:50px;width:200px;"/>
+    </form>
+    <iframe id="tempFrameId" name="tempFrame" style="display:none;"></iframe>
+    <div id="chartContainer" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
+    <script type="text/javascript" src="/canvasjs.min.js"></script>
+</body>
+</html>
