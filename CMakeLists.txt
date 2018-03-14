@@ -6,8 +6,9 @@ include_directories("C:\\Users\\svandexcn\\Documents\\RPi3_include\\include"
 
 
 #set(CMAKE_CXX_FLAGS "/EHsc /std:c++latest /await")
+set(CMAKE_CXX_FLAGS "-std=c++11 -pthread -lrt")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #add the executable
 add_executable(pd main.cpp PalmDeviceGPIO.cpp PalmDeviceServer.cpp)
-target_link_libraries(mlc WindowsApp.lib)# cpprest_2_10.lib)
+target_link_libraries(pd cpprest nghttp2 microhttpd boost_system ssl crypto pigpio)

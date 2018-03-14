@@ -29,6 +29,7 @@ void PalmDeviceServer::handle_get(http_request message)
 	ucout << message.absolute_uri().to_string() << std::endl;
 
 	utility::string_t currentpath = get_current_dir_name();
+//	ucout << currentpath << std::endl;
 	http_response message_response;
 	//Client needs html and javascript code to interact with server
 	//Return two or more files back to client, each with a HTTP frame
@@ -36,7 +37,7 @@ void PalmDeviceServer::handle_get(http_request message)
 	//URI "/" return the default index.html
 	if (message.absolute_uri().to_string() == "/") {
 		message_response.headers().set_content_type("text/html");
-		utility::string_t index_html_path = currentpath + "/../../../res/index.html";
+		utility::string_t index_html_path = currentpath + "/../res/index.html";
 		//ucout << currentpath << std::endl;
 
 		pplx::task<void> requestTask = Concurrency::streams::file_stream<uint8_t>::open_istream(index_html_path)
@@ -68,7 +69,7 @@ void PalmDeviceServer::handle_get(http_request message)
 	//URI "/canvasjs.min.js" return the canvasjs.min.js file
 	if (message.absolute_uri().to_string() == "/canvasjs.min.js") {
 		message_response.headers().set_content_type("text/javascript");
-		utility::string_t js_path = currentpath + "/../../../res/canvasjs.min.js";
+		utility::string_t js_path = currentpath + "/../res/canvasjs.min.js";
 
 		pplx::task<void> requestTask = Concurrency::streams::file_stream<uint8_t>::open_istream(js_path)
 
@@ -96,7 +97,7 @@ void PalmDeviceServer::handle_get(http_request message)
 	//URI "/favicon.ico" return the ico file
 	if (message.absolute_uri().to_string() == "/favicon.ico") {
 		message_response.headers().set_content_type("image/x-icon");
-		utility::string_t js_path = currentpath + "/../../../res/favicon.ico";
+		utility::string_t js_path = currentpath + "/../res/favicon.ico";
 
 		pplx::task<void> requestTask = Concurrency::streams::file_buffer<uint8_t>::open(js_path, std::ios_base::in)
 			.then([&message_response](Concurrency::streams::streambuf<uint8_t> response_streambuf) {
