@@ -9,6 +9,7 @@ public:
 	PalmDeviceGPIO(PalmDeviceGPIO &) = delete; //cannot copy gpio instance, only one exists
 	~PalmDeviceGPIO();
 	void ledFlash(const int &ledPinNum, int delaytime);
+	void sensorAction();
 private:
 	static int numOfInstance;//no more than one instance
 };
