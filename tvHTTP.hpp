@@ -29,7 +29,7 @@ private:
 	void handle_delete(http_request message);
 
 	http_listener m_listener;
-	static PalmDeviceGPIO gpio;
+	static tvGPIO gpio;
 };
 
 void on_initialize(const string_t& address);
