@@ -164,3 +164,19 @@ void PalmDeviceServer::handle_delete(http_request message)
 	ucout << message.to_string() << std::endl;
 	message.reply(status_codes::OK);
 }
+
+void on_initialize(const string_t& address) {
+	uri_builder uri(address);
+	// address:port/Action
+	//uri.append_path(U(""));
+	auto addr = uri.to_uri().to_string();
+	g_http = std::unique_ptr<PalmDeviceServer>(new PalmDeviceServer(addr));
+	g_http->open().wait();
+
+	ucout << utility::string_t(U("Listening for request at: ")) << addr << std::endl;
+}
+
+void on_shutdown() {
+	g_http->close().wait();
+	return;
+}

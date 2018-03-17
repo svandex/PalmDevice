@@ -32,3 +32,7 @@ private:
 	static PalmDeviceGPIO gpio;
 };
 
+std::unique_ptr<PalmDeviceServer> g_http;
+
+void on_initialize(const string_t& address);
+void on_shutdown();
