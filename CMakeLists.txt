@@ -14,5 +14,5 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -pthread -fpermissive -Wwrite-strings")
 #set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #add the executable
-add_executable(pd main.cpp PalmDeviceGPIO.cpp PalmDeviceServer.cpp)
+add_executable(pd PalmDeviceGPIO.cpp PalmDeviceServer.cpp PalmDeviceWS.cpp main.cpp )
 target_link_libraries(pd cpprest boost_system ssl crypto pigpio rt)
