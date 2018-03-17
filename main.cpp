@@ -28,8 +28,12 @@ Feature:
 	gamepad controller
 	servo control
 */
-#include "PalmDeviceServer.h"
-#include "PalmDeviceWS.h"
+#include "tvHTTP.hpp"
+#include "tvWS.hpp"
+
+#include <thread>
+
+std::unique_ptr<tvHTTP> g_http;
 
 int main(int argc, char* argv[]) {
 	//start websocket server
@@ -39,7 +43,11 @@ int main(int argc, char* argv[]) {
 	data_server.init_asio();
 	data_server.listen(60001);//websocet server port number
 	data_server.start_accept();
-	data_server.run();
+
+	std::thread wsThread([&data_server]() {
+		data_server.run();
+	});
+	wsThread.detach();
 
 	//start cpprest http server
 	utility::string_t port = U("60000");
@@ -55,5 +63,9 @@ int main(int argc, char* argv[]) {
 	std::getline(std::cin, line);
 
 	on_shutdown();
+	//data_server in wsThread, will there be memory leaked?
+	if (data_server.is_listening()) {
+		data_server.stop();
+	}
 	return EXIT_SUCCESS;
 }
