@@ -10,9 +10,9 @@ include_directories("C:\\Users\\svandexcn\\Documents\\IncludeFiles\\include"
 
 
 #set(CMAKE_CXX_FLAGS "/EHsc /std:c++latest /await")
-set(CMAKE_CXX_FLAGS "-std=c++11 -pthread -fpermissive -Wwrite-strings")
-#set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_FLAGS "-std=c++11 -pthread")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #add the executable
-add_executable(pd tvGPIO.cpp tvHTTP.cpp tvWS.cpp main.cpp )
-target_link_libraries(pd cpprest boost_system ssl crypto pigpio rt)
+add_executable(tvpd tvGPIO.cpp tvHTTP.cpp tvWS.cpp main.cpp )
+target_link_libraries(tvpd cpprest boost_system ssl crypto pigpio rt)
