@@ -35,12 +35,20 @@
             chart.render();
         }
     </script>
+    <script type="text/javascript">
+        function sendMessage() {
+            var connection = new WebSocket('ws://10.42.0.1:60001');
+            connection.addEventListener('open', function (event) {
+                connection.send('Hello Server');
+            });
+        }
+    </script>
 </head>
 <body>
     <h1 style="text-align:center">Data Aqusition and Controlling</h1><br />
     <form action="/" method="POST" enctype="text/plain" target="tempFrame">
-        <input type="text" name="delayTime" value="5" style="height:40px;width:100px;"/><br /><br />
-        <input type="submit" value="START" style="height:50px;width:200px;"/>
+        <input type="text" name="Data Aquired Number" value="5" style="height:40px;width:100px;"/><br /><br />
+        <input type="submit" name="submit" value="START" style="height:50px;width:200px;" onclick="sendMessage();"/>
     </form>
     <iframe id="tempFrameId" name="tempFrame" style="display:none;"></iframe>
     <div id="chartContainer" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
