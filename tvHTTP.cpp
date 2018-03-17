@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <thread>
 
-PalmDeviceGPIO tvHTTP::gpio;
+tvGPIO tvHTTP::gpio;
 extern std::unique_ptr<tvHTTP> g_http;
 
 tvHTTP::tvHTTP()
