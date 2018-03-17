@@ -2,6 +2,7 @@
 #include <regex>
 #include <cpprest/streams.h>
 #include <cpprest/filestream.h>
+#include <cpprest/json.h>
 #include <unistd.h>
 #include <thread>
 
@@ -27,6 +28,7 @@ tvHTTP::~tvHTTP()
 
 void tvHTTP::handle_get(http_request message)
 {
+	gpio.ledFlash(gpio.htmlStatePin, 1);
 	//ucout << message.to_string() << std::endl;
 	ucout << message.absolute_uri().to_string() << std::endl;
 
@@ -51,9 +53,6 @@ void tvHTTP::handle_get(http_request message)
 			.then([&message](http_response message_response) {
 			message_response.set_status_code(status_codes::OK);
 			message.reply(message_response);
-
-			const int num = 5;
-			gpio.ledFlash(num, 1);
 		});
 
 		try {
@@ -135,8 +134,7 @@ void tvHTTP::handle_put(http_request message)//If request has content body
 }
 
 void tvHTTP::handle_post(http_request message)
-{
-	const int num = 6;
+{/*
 	//ucout << message.to_string() << std::endl;
 	std::string temp = message.extract_string(true).get();
 
@@ -146,17 +144,23 @@ void tvHTTP::handle_post(http_request message)
 
 	message.reply(status_codes::OK);
 	if (std::regex_search(temp.c_str(), tempSm, tempRegex)) {
-		/*	ucout << tempSm.size() << std::endl;
-			ucout << tempSm[0].length() << std::endl;
-			ucout << tempSm[0].str() << std::endl;
-			*/
 	}
 	if (tempSm.size() > 0) {
-		std::thread th1([num, &tempSm] {
-			gpio.ledFlash(num, std::atoi(tempSm[0].str().c_str()));
-		});
-		th1.detach();
-		gpio.sensorAction();
+		gpio.daqByNum();
+	}*/
+	auto temp = message.extract_json()
+		.then([](web::json::value resultValue) {
+		auto result = resultValue.at(U("Data Aquired Number"));
+		std::cout << "Parsed JSON data: " << result << std::endl;
+	});
+	try {
+		temp.wait();
+	}
+	catch (std::exception const &e) {
+		std::wcout << "Exception: " << e.what() << std::endl;
+		std::wcout << "This is not json file format." << std::endl;
+		//Error occured, internal error return.
+		return;
 	}
 }
 
