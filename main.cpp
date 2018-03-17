@@ -37,16 +37,10 @@ Feature:
 std::unique_ptr<tvHTTP> g_http;
 
 int main(int argc, char* argv[]) {
-	//start websocket server
-	wsserver data_server;
-	data_server.set_message_handler(&on_message);
 
-	data_server.init_asio();
-	data_server.listen(60001);//websocet server port number
-	data_server.start_accept();
-
-	std::thread wsThread([&data_server]() {
-		data_server.run();
+	std::thread wsThread([]() {
+		tvWS g_WS;
+		g_WS.on_initialize();
 	});
 	wsThread.detach();
 
@@ -64,9 +58,6 @@ int main(int argc, char* argv[]) {
 	std::getline(std::cin, line);
 
 	on_shutdown();
-	//data_server in wsThread, will there be memory leaked?
-	if (data_server.is_listening()) {
-		data_server.stop();
-	}
+
 	return EXIT_SUCCESS;
 }
