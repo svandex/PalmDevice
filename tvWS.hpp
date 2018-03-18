@@ -14,8 +14,10 @@ public:
 	tvWS();
 	tvWS(tvWS const &) = delete;
 	void on_initialize();
+	void on_shutdown();
 
 	~tvWS();
 private:
 	wsserver data_server;
+	const uint16_t wsPort = 60001;
 };

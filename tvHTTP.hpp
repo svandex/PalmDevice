@@ -20,7 +20,9 @@ public:
 
 	pplx::task<void> open() { return m_listener.open(); }
 	pplx::task<void> close() { return m_listener.close(); }
-
+	
+	void on_initialize(const string_t& address);
+	void on_shutdown();
 	~tvHTTP();
 private:
 	void handle_get(http_request message);
@@ -29,7 +31,6 @@ private:
 	void handle_delete(http_request message);
 
 	http_listener m_listener;
-	static tvGPIO gpio;
 };
 
 void on_initialize(const string_t& address);

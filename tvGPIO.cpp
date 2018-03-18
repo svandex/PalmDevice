@@ -5,13 +5,16 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+constexpr char* gpioPrompt = "[GPIO]: ";
+#define gOut std::cout<<gpioPrompt
+
 int tvGPIO::numOfInstance = 0;
 const int SensorControlPin = 26;
 
 tvGPIO::tvGPIO()
 {
 	if (numOfInstance++ > 1) {
-		std::cout << "Only One Instance should be exist.";
+		gOut << "Only One Instance should be exist.";
 		return;
 	}
 	gpioInitialise();
@@ -37,37 +40,42 @@ void tvGPIO::ledFlash(const int &ledPinNum, int delaytime)
 	}
 }
 
-std::vector<uint16_t> tvGPIO::daqByNum()
+std::vector<uint16_t> tvGPIO::daqByNum() const
 {
 	uint16_t element;
-	std::vector<uint16_t> vElement(this->daqByNum_Number);
+	std::vector<uint16_t> vElement;
 	//change permission to let data aqusition card to write into it
 	if (chmod("/dev/ttyUSB0", S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
-		std::cout << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
+		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
 			<< "Aquired Data cannot write into /dev/ttyUSB0" << std::endl;
-		return std::move(vElement);
+		return std::vector<uint16_t>{0};
 	}
 
 	std::fstream ftty("/dev/ttyUSB0", std::ios::in);
 	if (ftty.is_open()) {
 		gpioWrite(SensorControlPin, PI_HIGH);
+		//std::cout << "[GPIO: ]";
 		for (uint16_t num = 0; num < this->daqByNum_Number; num++) {
 			ftty >> element;
 			//std::cout << element << ", ";
 			vElement.push_back(element);
 		}
-		std::cout << std::endl << "DAQ end." << std::endl;
+		std::cout << std::endl;
+		gOut << "DAQ end." << std::endl;
 		gpioWrite(SensorControlPin, PI_LOW);
-		return std::move(vElement);
+		ftty.sync();
+		ftty.close();
+		return vElement;
 	}
 	else {//not openend
-		std::cout << "USB port is not connected." << std::endl;
+		gOut << "USB port is not connected." << std::endl;
 	}
 
 	if (chmod("/dev/ttyUSB0", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
-		std::cout << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
+		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
 			<< "May have risk that others write into this file." << std::endl;
 	}
+	return std::vector<uint16_t>{0};
 }
 
 void tvGPIO::daqByTime()
@@ -75,7 +83,7 @@ void tvGPIO::daqByTime()
 	uint16_t element;
 	//change permission to let data aqusition card to write into it
 	if (chmod("/dev/ttyUSB0", S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
-		std::cout << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
+		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
 			<< "Aquired Data cannot write into /dev/ttyUSB0" << std::endl;
 		return;
 	}
@@ -94,18 +102,18 @@ void tvGPIO::daqByTime()
 	if (ftty.is_open()) {//opened
 		//collect data from /dev/ttyUSB0
 		uint16_t bufSz = ftty.rdbuf()->in_avail();
-		std::cout << "Has aquired " << bufSz << " in bytes." << std::endl;
+		gOut << "Has aquired " << bufSz << " in bytes." << std::endl;
 		for (uint16_t num = 0; num < bufSz / 2; num++) {
 			ftty >> element;
 			std::cout << element << ", ";
 		}
-		std::cout << std::endl << "DAQ end." << std::endl;
+		gOut << std::endl << "DAQ end." << std::endl;
 	}
 	else {//not openend
-		std::cout << "USB port is not connected." << std::endl;
+		gOut << "USB port is not connected." << std::endl;
 	}
 	if (chmod("/dev/ttyUSB0", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
-		std::cout << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
+		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
 			<< "May have risk that others write into this file." << std::endl;
 	}
 }

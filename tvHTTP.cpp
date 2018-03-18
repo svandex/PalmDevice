@@ -6,7 +6,10 @@
 #include <unistd.h>
 #include <thread>
 
-tvGPIO tvHTTP::gpio;
+constexpr char* httpPrompt = "[HTTP]: ";
+#define hOut std::cout<<httpPrompt
+
+extern tvGPIO gpio;
 extern std::unique_ptr<tvHTTP> g_http;
 
 tvHTTP::tvHTTP()
@@ -29,11 +32,11 @@ tvHTTP::~tvHTTP()
 void tvHTTP::handle_get(http_request message)
 {
 	gpio.ledFlash(gpio.htmlStatePin, 1);
-	//ucout << message.to_string() << std::endl;
-	ucout << message.absolute_uri().to_string() << std::endl;
+	//hOut << message.to_string() << std::endl;
+	hOut << message.absolute_uri().to_string() << std::endl;
 
 	utility::string_t currentpath = get_current_dir_name();
-	//	ucout << currentpath << std::endl;
+	//	hOut << currentpath << std::endl;
 	http_response message_response;
 	//Client needs html and javascript code to interact with server
 	//Return two or more files back to client, each with a HTTP frame
@@ -42,7 +45,7 @@ void tvHTTP::handle_get(http_request message)
 	if (message.absolute_uri().to_string() == "/") {
 		message_response.headers().set_content_type("text/html");
 		utility::string_t index_html_path = currentpath + "/res/index.html";
-		//ucout << currentpath << std::endl;
+		//hOut << currentpath << std::endl;
 
 		pplx::task<void> requestTask = Concurrency::streams::file_stream<uint8_t>::open_istream(index_html_path)
 
@@ -123,19 +126,19 @@ void tvHTTP::handle_get(http_request message)
 		}
 	}
 	//Print response and replay to the request
-	//ucout << message_response.to_string() << std::endl;
-	//ucout <<"Has responed to "<< message.absolute_uri().to_string() << std::endl;
+	//hOut << message_response.to_string() << std::endl;
+	//hOut <<"Has responed to "<< message.absolute_uri().to_string() << std::endl;
 }
 
 void tvHTTP::handle_put(http_request message)//If request has content body
 {
-	ucout << message.to_string() << std::endl;
+	hOut << message.to_string() << std::endl;
 	message.reply(status_codes::OK);
 }
 
 void tvHTTP::handle_post(http_request message)
 {/*
-	//ucout << message.to_string() << std::endl;
+	//hOut << message.to_string() << std::endl;
 	std::string temp = message.extract_string(true).get();
 
 	//use regex to get delaytime
@@ -166,11 +169,11 @@ void tvHTTP::handle_post(http_request message)
 
 void tvHTTP::handle_delete(http_request message)
 {
-	ucout << message.to_string() << std::endl;
+	hOut << message.to_string() << std::endl;
 	message.reply(status_codes::OK);
 }
 
-void on_initialize(const string_t& address) {
+void tvHTTP::on_initialize(const string_t& address) {
 	uri_builder uri(address);
 	// address:port/Action
 	//uri.append_path(U(""));
@@ -178,10 +181,11 @@ void on_initialize(const string_t& address) {
 	g_http = std::unique_ptr<tvHTTP>(new tvHTTP(addr));
 	g_http->open().wait();
 
-	ucout << utility::string_t(U("Listening for request at: ")) << addr << std::endl;
+	hOut << utility::string_t(U("Listening for request at: ")) <<std::endl
+		<<"		http://"<<addr <<" on both ethernet and wlan"<< std::endl;
 }
 
-void on_shutdown() {
+void tvHTTP::on_shutdown() {
 	g_http->close().wait();
 	return;
 }
