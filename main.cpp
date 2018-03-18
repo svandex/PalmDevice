@@ -36,13 +36,14 @@ Feature:
 #include <thread>
 
 tvGPIO gpio;								//only one gpio instance could exist, take care about multi-thread situation
-tvWS g_WS;									//websocket server instance
+std::unique_ptr<tvWS> g_WS;					//websocket server instance
 std::unique_ptr<tvHTTP> g_http;				//http server instance
 
 int main(int argc, char* argv[]) {
 
 	std::thread wsThread([]() {
-		g_WS.on_initialize();
+		g_WS = std::unique_ptr<tvWS>(new tvWS());
+		g_WS->on_initialize();
 	});
 	wsThread.detach();
 
@@ -58,6 +59,6 @@ int main(int argc, char* argv[]) {
 	std::cin >> line;
 
 	g_http->on_shutdown();
-	g_WS.on_shutdown();//TODO: cannot shutdown properly, start next time, there will be error that port has already been used.
+	g_WS->on_shutdown();//TODO: cannot shutdown properly, start next time, there will be error that port has already been used.
 	return EXIT_SUCCESS;
 }

@@ -33,10 +33,28 @@
                 }]
             });
             chart.render();
+
+            var dataPointsUpdate = [];
+            var chart1 = new CanvasJS.Chart("chartContainer1", {
+                animationEnabled: true,
+                theme: "light2",
+                title: {
+                    text: "Simple Line Chart"
+                },
+                axisY: {
+                    includeZero: false
+                },
+                data: [{
+                    type: "line",
+                    dataPoints: dataPointsUpdate
+                }]
+            });
+            //UpdateData();
+            chart1.render();
+            //setTimeout(UpdateData, 5000);
         }
-    </script>
-    <script type="text/javascript">
-        function sendMessage() {
+
+        function UpdateData() {
             var connection = new WebSocket('ws://10.10.10.1:60001');
             connection.addEventListener('open', function (event) {
                 connection.send('Hello Server');
@@ -47,10 +65,17 @@
 <body>
     <h1 style="text-align:center">Data Aqusition and Controlling</h1><br />
     <form action="/" method="POST" enctype="text/plain" target="tempFrame">
-        <input type="text" name="Data Aquired Number" value="5" style="height:40px;width:100px;"/><br /><br />
-        <input type="submit" name="submit" value="START" style="height:50px;width:200px;" onclick="sendMessage();"/>
+        <input type="text" name="Data Aquired Number" value="5" style="height:40px;width:100px;" /><br /><br />
+        <input type="submit" name="submit" value="START" style="height:50px;width:200px;" onclick="UpdateData();" />
     </form>
     <iframe id="tempFrameId" name="tempFrame" style="display:none;"></iframe>
+    <br />
+    <h3 style="text-align:center">Static Chart</h3>
+    <br />
+    <div id="chartContainer1" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
+    <br />
+    <h3 style="text-align:center">Dynamic Chart</h3>
+    <br />
     <div id="chartContainer" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
     <script type="text/javascript" src="/canvasjs.min.js"></script>
 </body>
