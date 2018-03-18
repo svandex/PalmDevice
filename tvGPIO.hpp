@@ -2,6 +2,7 @@
 
 #include <pigpio.h>
 #include <vector>
+#include <memory>
 
 class tvGPIO
 {
@@ -10,7 +11,7 @@ public:
 	tvGPIO(tvGPIO &) = delete; //cannot copy gpio instance, only one exists
 	~tvGPIO();
 	void ledFlash(const int &ledPinNum, int delaytime);
-	std::vector<uint16_t> daqByNum() const;
+	std::unique_ptr<uint16_t> daqByNum() const;
 	void daqByTime();
 
 	const int daqStatePin = 6;//if daq is undergoing

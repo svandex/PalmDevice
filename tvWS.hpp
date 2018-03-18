@@ -7,7 +7,11 @@
 
 typedef websocketpp::server<websocketpp::config::asio> wsserver;
 
-void OnMessage(websocketpp::connection_hdl hdl, wsserver::message_ptr msg);
+using websocketpp::lib::placeholders::_1;
+using websocketpp::lib::placeholders::_2;
+using websocketpp::lib::bind;
+
+void on_message(wsserver *s, websocketpp::connection_hdl hdl, wsserver::message_ptr msg);
 
 class tvWS {
 public:

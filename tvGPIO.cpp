@@ -40,15 +40,15 @@ void tvGPIO::ledFlash(const int &ledPinNum, int delaytime)
 	}
 }
 
-std::vector<uint16_t> tvGPIO::daqByNum() const
+std::unique_ptr<uint16_t> tvGPIO::daqByNum() const
 {
 	uint16_t element;
-	std::vector<uint16_t> vElement;
+	std::unique_ptr<uint16_t> vElement(new uint16_t(this->daqByNum_Number));
 	//change permission to let data aqusition card to write into it
 	if (chmod("/dev/ttyUSB0", S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
 			<< "Aquired Data cannot write into /dev/ttyUSB0" << std::endl;
-		return std::vector<uint16_t>{0};
+		return nullptr;
 	}
 
 	std::fstream ftty("/dev/ttyUSB0", std::ios::in);
@@ -58,10 +58,11 @@ std::vector<uint16_t> tvGPIO::daqByNum() const
 		for (uint16_t num = 0; num < this->daqByNum_Number; num++) {
 			ftty >> element;
 			//std::cout << element << ", ";
-			vElement.push_back(element);
+			*(vElement.get() + num) = element;
 		}
 		std::cout << std::endl;
-		gOut << "DAQ end." << std::endl;
+		gOut << "Aquired data from Arduino in " << this->daqByNum_Number * 2 << " bytes." << std::endl;
+		gOut << "Remained " << ftty.rdbuf()->in_avail() << " bytes unread" << std::endl;
 		gpioWrite(SensorControlPin, PI_LOW);
 		ftty.sync();
 		ftty.close();
@@ -75,7 +76,7 @@ std::vector<uint16_t> tvGPIO::daqByNum() const
 		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
 			<< "May have risk that others write into this file." << std::endl;
 	}
-	return std::vector<uint16_t>{0};
+	return nullptr;
 }
 
 void tvGPIO::daqByTime()
