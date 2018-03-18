@@ -37,7 +37,7 @@
     </script>
     <script type="text/javascript">
         function sendMessage() {
-            var connection = new WebSocket('ws://10.42.0.1:60001');
+            var connection = new WebSocket('ws://10.10.10.1:60001');
             connection.addEventListener('open', function (event) {
                 connection.send('Hello Server');
             });

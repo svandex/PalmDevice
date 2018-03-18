@@ -17,6 +17,7 @@ Package Dependency:
 	pigpio						http://github.com/joan2937/pigpio
 	libmysqlcppconn-dev			http://dev.mysql.com/doc/connector-cpp/en
 	websocketcpp				https://github.com/zaphoyd/websocketpp
+	libwebsockets				https://github.com/warmcat/libwebsockets
 
 	recommend to use Visual Studio For Linux to remote debug Raspberry Pi 3, http://svandex.github.io
 	recommend to copy /usr/include/ and /usr/local/include to your pc for intellisense
@@ -34,30 +35,29 @@ Feature:
 
 #include <thread>
 
-std::unique_ptr<tvHTTP> g_http;
+tvGPIO gpio;								//only one gpio instance could exist, take care about multi-thread situation
+tvWS g_WS;									//websocket server instance
+std::unique_ptr<tvHTTP> g_http;				//http server instance
 
 int main(int argc, char* argv[]) {
 
 	std::thread wsThread([]() {
-		tvWS g_WS;
 		g_WS.on_initialize();
 	});
 	wsThread.detach();
 
 	//start cpprest http server
 	utility::string_t port = U("60000");
-
-	//utility::string_t address = U("http://localhost:");
 	utility::string_t address = U("http://0.0.0.0:");
 	address.append(port);
 
-	on_initialize(address);
+	g_http->on_initialize(address);
 	std::cout << "Press Enter to exit..." << std::endl;
 
-	std::string line;
-	std::getline(std::cin, line);
+	uint8_t line;
+	std::cin >> line;
 
-	on_shutdown();
-
+	g_http->on_shutdown();
+	g_WS.on_shutdown();//TODO: cannot shutdown properly, start next time, there will be error that port has already been used.
 	return EXIT_SUCCESS;
 }

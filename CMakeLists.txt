@@ -10,7 +10,7 @@ include_directories("C:\\Users\\svandexcn\\Documents\\IncludeFiles\\include"
 
 
 #set(CMAKE_CXX_FLAGS "/EHsc /std:c++latest /await")
-set(CMAKE_CXX_FLAGS "-std=c++11 -pthread")
+set(CMAKE_CXX_FLAGS "-std=c++11 -pthread -Wall")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #add the executable
