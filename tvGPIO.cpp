@@ -43,7 +43,7 @@ void tvGPIO::ledFlash(const int &ledPinNum, int delaytime)
 std::unique_ptr<uint16_t> tvGPIO::daqByNum() const
 {
 	uint16_t element;
-	std::unique_ptr<uint16_t> vElement(new uint16_t(this->daqByNum_Number));
+	std::unique_ptr<uint16_t> vElement(new uint16_t[this->daqByNum_Number]);
 	//change permission to let data aqusition card to write into it
 	if (chmod("/dev/ttyUSB0", S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl

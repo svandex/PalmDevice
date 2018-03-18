@@ -59,6 +59,6 @@ int main(int argc, char* argv[]) {
 	std::cin >> line;
 
 	g_http->on_shutdown();
-	g_WS->on_shutdown();//TODO: cannot shutdown properly, start next time, there will be error that port has already been used.
+	g_WS->on_shutdown();
 	return EXIT_SUCCESS;
 }
