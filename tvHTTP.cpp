@@ -61,41 +61,19 @@ void tvHTTP::handle_get(http_request message)
 		send_file_to_client(message, message_response, "text/javascript", "/res/jquery.canvasjs.min.js");
 	}
 
+	//URI "/favicon.ico" return the ico file
+	if (message.absolute_uri().to_string() == "/favicon.ico") {
+		send_file_to_client(message, message_response, "image/x-icon", "/res/favicon.ico");
+	}
+
 	//URI "/testJson" to send back json data
-	if (message.absolute_uri().to_string() == "/testJson") {
-		web::json::value v = json::value::number(1);
+	if (message.absolute_uri().to_string() == "/testjson") {
+		web::json::value v = json::value::parse(U("\[\[1,7\],\[2,6\],\[3,1\],\[4,6\],\[5,2\],\[6,6\],\[7,3\],\[8,9\],\[9,4\],\[10,2\],\[11,9\],\[12,8\]\]"));
 		message_response.set_body(v);
 		message_response.set_status_code(status_codes::OK);
 		message.reply(message_response);
 	}
 
-	//URI "/favicon.ico" return the ico file
-	if (message.absolute_uri().to_string() == "/favicon.ico") {
-		message_response.headers().set_content_type("image/x-icon");
-		utility::string_t js_path = currentpath + "/res/favicon.ico";
-
-		pplx::task<void> requestTask = Concurrency::streams::file_buffer<uint8_t>::open(js_path, std::ios_base::in)
-			.then([&message_response](Concurrency::streams::streambuf<uint8_t> response_streambuf) {
-			auto temp_stream = Concurrency::streams::basic_istream<uint8_t>(response_streambuf);
-			message_response.set_body(temp_stream);
-			return message_response;
-		})
-			.then([&message](http_response message_response) {
-			message_response.set_status_code(status_codes::OK);
-			message.reply(message_response);
-		});
-
-		try {
-			requestTask.wait();
-		}
-		catch (std::exception const &e) {
-			std::wcout << "Exception: " << e.what() << std::endl;
-			//Error occured, internal error return.
-			message_response.set_status_code(status_codes::InternalError);
-			message.reply(message_response);
-			return;
-		}
-	}
 	//Print response and replay to the request
 	//hOut << message_response.to_string() << std::endl;
 	//hOut <<"Has responed to "<< message.absolute_uri().to_string() << std::endl;
@@ -151,13 +129,12 @@ void tvHTTP::send_file_to_client(const http_request &message, http_response &mes
 {
 	//message_response.headers().set_content_type("text/html");
 	message_response.headers().set_content_type(content_type);
-	utility::string_t index_html_path = currentpath + related_path;
+	utility::string_t file_path = currentpath + related_path;
 	//hOut << currentpath << std::endl;
-
-	pplx::task<void> requestTask = Concurrency::streams::file_stream<uint8_t>::open_istream(index_html_path)
-
-		.then([&message_response](Concurrency::streams::basic_istream<uint8_t> response_basic_istream) {
-		message_response.set_body(response_basic_istream);
+	pplx::task<void> requestTask = Concurrency::streams::file_buffer<uint8_t>::open(file_path, std::ios_base::in)
+		.then([&message_response](Concurrency::streams::streambuf<uint8_t> response_streambuf) {
+		auto temp_stream = Concurrency::streams::basic_istream<uint8_t>(response_streambuf);
+		message_response.set_body(temp_stream);
 		return message_response;
 	})
 		.then([&message](http_response message_response) {
