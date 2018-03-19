@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <thread>
 
-constexpr char* httpPrompt = "[HTTP]: ";
+std::string httpPrompt("[HTTP]: ");
 #define hOut std::cout<<httpPrompt
 
 utility::string_t currentpath = get_current_dir_name();
@@ -32,7 +32,7 @@ tvHTTP::~tvHTTP()
 
 void tvHTTP::handle_get(http_request message)
 {
-	gpio.ledFlash(gpio.htmlStatePin, 1);
+	gpio.ledFlash(TC_HTTPS, 1);
 	//hOut << message.to_string() << std::endl;
 	hOut << message.absolute_uri().to_string() << std::endl;
 
@@ -68,7 +68,13 @@ void tvHTTP::handle_get(http_request message)
 
 	//URI "/testJson" to send back json data
 	if (message.absolute_uri().to_string() == "/testjson") {
-		web::json::value v = json::value::parse(U("\[\[1,7\],\[2,6\],\[3,1\],\[4,6\],\[5,2\],\[6,6\],\[7,3\],\[8,9\],\[9,4\],\[10,2\],\[11,9\],\[12,8\]\]"));
+		auto result = gpio.daqByNum();
+		web::json::value v;
+		for (auto i = 1; i < TC_DNUM; i++) {
+			//hOut << *(result.get() + i);
+			v[std::to_string(i)] = *(result.get() + i);
+		}
+//		web::json::value v = json::value::parse(U("\[\[1,7\],\[2,6\],\[3,1\],\[4,6\],\[5,2\],\[6,6\],\[7,3\],\[8,9\],\[9,4\],\[10,2\],\[11,9\],\[12,8\]\]"));
 		message_response.set_body(v);
 		message_response.set_status_code(status_codes::OK);
 		message.reply(message_response);
@@ -77,6 +83,7 @@ void tvHTTP::handle_get(http_request message)
 	//Print response and replay to the request
 	//hOut << message_response.to_string() << std::endl;
 	//hOut <<"Has responed to "<< message.absolute_uri().to_string() << std::endl;
+	hOut << "GET response complete." << std::endl;
 }
 
 void tvHTTP::handle_put(http_request message)//If request has content body

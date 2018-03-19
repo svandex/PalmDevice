@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include "tvConfig.hpp"
+
 class tvGPIO
 {
 public:
@@ -13,11 +15,15 @@ public:
 	void ledFlash(const int &ledPinNum, int delaytime);
 	std::unique_ptr<uint16_t> daqByNum() const;
 	void daqByTime();
-
-	const int daqStatePin = 6;//if daq is undergoing
-	const int htmlStatePin = 5;//if http server is transmitting files
-	int daqByNum_Number = 30;//how many number of data is aquired
-	const int daqByTime_Time = 3000;//ms
+protected:
+	void daqStart() const{
+		gpioWrite(TC_DC, PI_HIGH);
+		gpioWrite(TC_DS, PI_HIGH);
+	}
+	void daqStop() const{
+		gpioWrite(TC_DC, PI_LOW);
+		gpioWrite(TC_DS, PI_LOW);
+	}
 private:
 	static int numOfInstance;//no more than one instance
 };

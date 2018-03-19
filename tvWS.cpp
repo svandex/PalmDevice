@@ -3,7 +3,7 @@
 
 #include <memory>
 
-constexpr char* wsPrompt = "[WS]: ";
+std::string wsPrompt = "[WS]: ";
 #define wsOut std::cout<<wsPrompt
 
 extern tvGPIO gpio;
@@ -18,14 +18,14 @@ void on_message(wsserver* s, websocketpp::connection_hdl hdl, wsserver::message_
 	}
 	//show what has been aquired.
 	wsOut << " Data: ";
-	for (uint16_t num = 0; num < gpio.daqByNum_Number; num++) {
+	for (uint16_t num = 0; num < TC_DNUM; num++) {
 		std::cout << "  " << *(SendData.get() + num);
 	}
 	std::cout << std::endl;
 
 	//send data to client
 	auto con = s->get_con_from_hdl(hdl);
-	con->send((void*)SendData.get(), sizeof(gpio.daqByNum_Number * 2), websocketpp::frame::opcode::binary);
+	con->send((void*)SendData.get(), sizeof(TC_DNUM * 2), websocketpp::frame::opcode::binary);
 	//con->send("hello world", 11, websocketpp::frame::opcode::text);
 }
 

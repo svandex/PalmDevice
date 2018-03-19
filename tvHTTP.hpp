@@ -33,6 +33,3 @@ private:
 	void send_file_to_client(const http_request &message,http_response &message_response,const char* content_type, const char* related_path);
 	http_listener m_listener;
 };
-
-void on_initialize(const string_t& address);
-void on_shutdown();
