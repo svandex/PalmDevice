@@ -16,7 +16,7 @@ Package Dependency:
 	boost						http://boost.org
 	pigpio						http://github.com/joan2937/pigpio
 	libmysqlcppconn-dev			http://dev.mysql.com/doc/connector-cpp/en
-	websocketcpp				https://github.com/zaphoyd/websocketpp
+	websocketpp				https://github.com/zaphoyd/websocketpp
 	libwebsockets				https://github.com/warmcat/libwebsockets
 
 	recommend to use Visual Studio For Linux to remote debug Raspberry Pi 3, http://svandex.github.io

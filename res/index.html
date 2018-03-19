@@ -4,6 +4,8 @@
     <title>Test Demo</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <script>
+        var dataPointsUpdate = [];
+
         window.onload = function () {
             var chart = new CanvasJS.Chart("chartContainer", {
                 animationEnabled: true,
@@ -34,7 +36,6 @@
             });
             chart.render();
 
-            var dataPointsUpdate = [];
             var chart1 = new CanvasJS.Chart("chartContainer1", {
                 animationEnabled: true,
                 theme: "light2",
@@ -52,14 +53,28 @@
             //UpdateData();
             chart1.render();
             //setTimeout(UpdateData, 5000);
+            setInterval(function () { UpdateData(chart1); }, 500);
         }
 
-        function UpdateData() {
-            var connection = new WebSocket('ws://10.10.10.1:60001');
+        function UpdateData(chart) {
+            /* var connection = new WebSocket('ws://10.10.10.1:60001');
             connection.addEventListener('open', function (event) {
                 connection.send('Hello Server');
             });
+
+            connection.addEventListener('message', function (event) {
+                console.log('Data from Raspberry Pi: ', event.data);
+            });*/
+            $.getJSON("/testjson", function (data) {
+                $.each(data, function (key, value) {
+                    dataPointsUpdate.push({ x: value[0], y: parseInt(value[1]) });
+                });
+            });
+
+            chart.render();
         }
+
+
     </script>
 </head>
 <body>
@@ -72,11 +87,13 @@
     <br />
     <h3 style="text-align:center">Static Chart</h3>
     <br />
-    <div id="chartContainer1" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
+    <div id="chartContainer" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
     <br />
     <h3 style="text-align:center">Dynamic Chart</h3>
     <br />
-    <div id="chartContainer" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
+    <div id="chartContainer1" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
     <script type="text/javascript" src="/canvasjs.min.js"></script>
+    <script type="text/javascript" src="/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="/jquery.canvasjs.min.js"></script>
 </body>
 </html>
