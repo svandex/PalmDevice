@@ -5,74 +5,80 @@
     <title>Test Demo</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <script>
-        var dataPointsUpdate = [];
+        var dpx = [];
+        var dpy = [];
+        var xVal = 0;
+        var xlength = 10;
 
         window.onload = function () {
-            var chart = new CanvasJS.Chart("chartContainer", {
+            var chartx = new CanvasJS.Chart("chartContainerx", {
                 animationEnabled: true,
                 theme: "light2",
                 title: {
-                    text: "Simple Line Chart"
+                    text: "Each Time Chart"
                 },
                 axisY: {
                     includeZero: false
                 },
                 data: [{
                     type: "line",
-                    dataPoints: [
-                        { y: 450 },
-                        { y: 414 },
-                        { y: 520, indexLabel: "highest", markerColor: "red", markerType: "triangle" },
-                        { y: 460 },
-                        { y: 450 },
-                        { y: 500 },
-                        { y: 480 },
-                        { y: 480 },
-                        { y: 410, indexLabel: "lowest", markerColor: "DarkSlateGrey", markerType: "cross" },
-                        { y: 500 },
-                        { y: 480 },
-                        { y: 510 }
-                    ]
+                    dataPoints: dpx
                 }]
             });
-            chart.render();
 
-            var chart1 = new CanvasJS.Chart("chartContainer1", {
+            var charty = new CanvasJS.Chart("chartContainery", {
                 animationEnabled: true,
                 theme: "light2",
                 title: {
-                    text: "Simple Line Chart"
+                    text: "All Time Chart"
                 },
                 axisY: {
                     includeZero: false
                 },
                 data: [{
                     type: "line",
-                    dataPoints: dataPointsUpdate
+                    dataPoints: dpy
                 }]
             });
-            //UpdateData();
-            chart1.render();
-            //setTimeout(UpdateData, 5000);
-            setInterval(function () { UpdateData(chart1); }, 500);
+            chartx.render();
+            charty.render();
+            setInterval(function () { UpdateData(chartx, charty); }, 1000);
         }
 
-        function UpdateData(chart) {
-            /* var connection = new WebSocket('ws://10.10.10.1:60001');
+
+
+        function UpdateData(chart_x, chart_y) {
+            /*
+            var connection = new WebSocket('ws://10.10.10.1:60001');
             connection.addEventListener('open', function (event) {
                 connection.send('Hello Server');
             });
 
             connection.addEventListener('message', function (event) {
                 console.log('Data from Raspberry Pi: ', event.data);
-            });*/
+            });
+            */
+            //dpx = [];
+
             $.getJSON("/testjson", function (data) {
                 $.each(data, function (key, value) {
-                    dataPointsUpdate.push({ x: value[0], y: value[1] });
+                    dpx.push({
+                        x: xVal,
+                        y: value * 3.3 / 1024
+                    });
+                    dpy.push({ y: value * 3.3 / 1024 });
+
+                    xVal++;
+
+                    if (dpx.length > xlength) {
+                        dpx.shift();
+                    }
                 });
+
             });
 
-            chart.render();
+            chart_x.render();
+            chart_y.render();
         }
 
 
@@ -80,19 +86,15 @@
 </head>
 <body>
     <h1 style="text-align:center">Data Aqusition and Controlling</h1><br />
-    <form action="/" method="POST" enctype="application/json" target="tempFrame">
+    <form action="/" method="POST" enctype="text/plain" target="tempFrame">
         <input type="text" name="Data Aquired Number" value="5" style="height:40px;width:100px;" /><br /><br />
-        <input type="submit" name="submit" value="START" style="height:50px;width:200px;" onclick="UpdateData();" />
+        <input type="submit" name="submit" value="START" style="height:50px;width:200px;" />
     </form>
     <iframe id="tempFrameId" name="tempFrame" style="display:none;"></iframe>
     <br />
-    <h3 style="text-align:center">Static Chart</h3>
+    <div id="chartContainerx" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
     <br />
-    <div id="chartContainer" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
-    <br />
-    <h3 style="text-align:center">Dynamic Chart</h3>
-    <br />
-    <div id="chartContainer1" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
+    <div id="chartContainery" style="height:300px;max-width:800px;margin:auto;text-align:center"></div>
     <script type="text/javascript" src="/canvasjs.min.js"></script>
     <script type="text/javascript" src="/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="/jquery.canvasjs.min.js"></script>
