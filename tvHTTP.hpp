@@ -30,6 +30,7 @@ private:
 	void handle_post(http_request message);
 	void handle_delete(http_request message);
 
+	void send_file_to_client(const http_request &message,http_response &message_response,const char* content_type, const char* related_path);
 	http_listener m_listener;
 };
 
