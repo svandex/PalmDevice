@@ -69,6 +69,10 @@ void tvHTTP::handle_get(http_request message)
 	//URI "/testJson" to send back json data
 	if (message.absolute_uri().to_string() == "/testjson") {
 		auto result = gpio.daqByNum();
+		if (!result.get()) {
+			hOut << "No Data Returned, Pointer is empty" << std::endl;
+			return;
+		}
 		web::json::value v;
 		for (auto i = 1; i < TC_DNUM; i++) {
 			//hOut << *(result.get() + i);

@@ -52,10 +52,11 @@ std::unique_ptr<uint16_t> tvGPIO::daqByNum() const
 		return nullptr;
 	}
 
-	std::fstream ftty("/dev/ttyUSB0", std::ios::in);
+	std::fstream ftty("/dev/ttyUSB0", std::ios::in|std::ios::binary|std::ios::ate);
 	if (ftty.is_open()) {
 		this->daqStart();
 		//std::cout << "[GPIO: ]";
+		ftty.sync();
 		for (uint16_t num = 0; num < TC_DNUM; num++) {
 			ftty >> element;
 			//gOut << element << ", ";
