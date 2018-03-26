@@ -9,7 +9,7 @@ include_directories("D:\\IncludeFiles\\usrInclude"
 include_directories("C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude"
 					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\arm-linux-gnueabihf"
 					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrLocalInclude"
-					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\c++\\5.4.0")
+					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\c++\\5")
 
 
 # surface pro 4
