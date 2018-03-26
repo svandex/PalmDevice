@@ -6,9 +6,11 @@ include_directories("D:\\IncludeFiles\\usrInclude"
 					"D:\\IncludeFiles\\usrLocalInclude")
 
 # home pc
-include_directories("C:\\Users\\svandexcn\\Documents\\IncludeFiles\\include"
-					"C:\\Users\\svandexcn\\Documents\\IncludeFiles\\include\\arm-linux-gnueabihf"
-					"C:\\Users\\svandexcn\\Documents\\IncludeFiles\\local")
+include_directories("C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude"
+					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\arm-linux-gnueabihf"
+					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrLocalInclude"
+					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\c++\\5.4.0")
+
 
 # surface pro 4
 include_directories("C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude"

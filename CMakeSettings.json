@@ -4,7 +4,7 @@
        {
       "name": "Linux-Debug",
       "generator": "Unix Makefiles",
-      "remoteMachineName": "${defaultRemoteMachineName}",
+      "remoteMachineName": "10.10.10.1",
       "configurationType": "Debug",
       "remoteCMakeListsRoot": "/var/tmp/src/${workspaceHash}/${name}",
       "cmakeExecutable": "/usr/local/bin/cmake",
@@ -17,7 +17,7 @@
       "remoteCopySourcesConcurrentCopies": "10",
       "remoteCopySourcesMethod": "sftp",
       "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
+      "buildCommandArgs": "-- -j4",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "linux-x64" ]
     },
