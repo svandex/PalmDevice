@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include "tvConfig.hpp"
+#include "tvConfig.h"
 
 class tvGPIO
 {
