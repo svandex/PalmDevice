@@ -1,5 +1,5 @@
-#include "tvWS.hpp"
-#include "tvHTTP.hpp"
+#include "tvWS.h"
+#include "tvHTTP.h"
 
 #include <memory>
 

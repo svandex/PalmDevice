@@ -1,4 +1,4 @@
-#include "tvGPIO.hpp"
+#include "tvGPIO.h"
 #include <iostream>
 #include <fstream>
 #include <bitset>
@@ -51,7 +51,7 @@ std::unique_ptr<uint16_t> tvGPIO::daqByNum() const
 			<< "Aquired Data cannot write into /dev/ttyUSB0" << std::endl;
 		return nullptr;
 	}
-
+	/*
 	std::fstream ftty("/dev/ttyUSB0", std::ios::in|std::ios::binary|std::ios::ate);
 	if (ftty.is_open()) {
 		this->daqStart();
@@ -78,7 +78,7 @@ std::unique_ptr<uint16_t> tvGPIO::daqByNum() const
 	else {//not openend
 		gOut << "USB port is not connected." << std::endl;
 	}
-
+*/
 	if (chmod("/dev/ttyUSB0", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
 		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
 			<< "May have risk that others write into this file." << std::endl;

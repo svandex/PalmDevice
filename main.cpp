@@ -24,8 +24,8 @@ Feature:
 	gamepad controller
 	servo control
 */
-#include "tvHTTP.hpp"
-#include "tvWS.hpp"
+#include "tvHTTP.h"
+#include "tvWS.h"
 
 #include <thread>
 
