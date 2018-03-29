@@ -68,21 +68,29 @@ void tvHTTP::handle_get(http_request message)
 
 	//URI "/testJson" to send back json data
 	if (message.absolute_uri().to_string() == "/testjson") {
+            try{
 		auto result = gpio.daqByNum();
+                /*
 		if (!result.get()) {
 			hOut << "No Data Returned, Pointer is empty" << std::endl;
 			return;
 		}
+                */
 		web::json::value v;
 		for (auto i = 1; i < TC_DNUM; i++) {
 			//hOut << *(result.get() + i);
-			v[std::to_string(i)] = *(result.get() + i);
-		}
-//		web::json::value v = json::value::parse(U("\[\[1,7\],\[2,6\],\[3,1\],\[4,6\],\[5,2\],\[6,6\],\[7,3\],\[8,9\],\[9,4\],\[10,2\],\[11,9\],\[12,8\]\]"));
+			//v[std::to_string(i)] = *(result.get() + i);
+			v[std::to_string(i)] = result[i];
+		//web::json::value v = json::value::parse(U("\[\[1,7\],\[2,6\],\[3,1\],\[4,6\],\[5,2\],\[6,6\],\[7,3\],\[8,9\],\[9,4\],\[10,2\],\[11,9\],\[12,8\]\]"));
+		//web::json::value v = json::value::parse(U("[[1,7],[2,6],[3,1],[4,6],[5,2],[6,6],[7,3],[8,9],[9,4],[10,2],[11,9],[12,8]]"));
 		message_response.set_body(v);
 		message_response.set_status_code(status_codes::OK);
 		message.reply(message_response);
-	}
+	        }
+            }catch(std::logic_error e){
+                std::cout<<e.what()<<std::endl;
+            }
+		}
 
 	//Print response and replay to the request
 	//hOut << message_response.to_string() << std::endl;
