@@ -1,13 +1,6 @@
 #include "tvGPIO.h"
-#include <iostream>
-#include <fstream>
-#include <bitset>
 
-#include <sys/stat.h>
-#include <unistd.h>
-
-
-std::string gpioPrompt = "[GPIO]: ";
+std::string gpioPrompt{"[GPIO]:"};
 #define gOut std::cout<<gpioPrompt
 
 int tvGPIO::numOfInstance = 0;
@@ -20,13 +13,65 @@ tvGPIO::tvGPIO()
 	}
 	gpioInitialise();
 	gpioSetMode(TC_DC, PI_OUTPUT);
-	gpioWrite(TC_DC, PI_LOW);
+	gpioWrite(TC_DC, PI_HIGH);
+        //Permisson change to let data be written by Arduino to /dev/ttyUSB0
+	if (chmod("/dev/ttyUSB0", S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
+			<< "Aquired Data cannot write into /dev/ttyUSB0" << std::endl;
+		return;
+	}
+
+        m_fd=open("/dev/ttyUSB0",O_RDONLY|O_NOCTTY|O_NDELAY,S_IRWXU | S_IRWXG | S_IRWXO);
+//        m_fd=open("/dev/ttyUSB0",O_RDONLY|O_NOCTTY,S_IRWXU | S_IRWXG | S_IRWXO);
+        //m_fd=open("~/Desktop/test.txt",O_RDWR);//|O_NOCTTY|O_NDELAY);
+        std::cout<<"File Discriptor: "<<m_fd<<std::endl;
+/*
+        char m;
+        std::cin>>m;
+        */
+
+        if(m_fd==-1){
+            throw std::logic_error("Cannot Open /dev/ttyUSB0, Make sure permission is correct.");
+        }
+
+        //Terminal IO Setting
+        tcgetattr(m_fd,&m_termOption);
+//        cfsetispeed(&m_termOption,B115200);
+//        cfsetospeed(&m_termOption,B115200);
+
+        m_termOption.c_ispeed=115200;
+        m_termOption.c_ospeed=115200;
+
+        m_termOption.c_cflag&=~PARENB;
+        m_termOption.c_cflag&=~CSIZE;
+        m_termOption.c_cflag|=CS8;
+
+        //stop bits
+        m_termOption.c_cflag&=~CSTOPB;
+
+        //Raw Mode Communication
+        m_termOption.c_lflag&=~(ICANON|ECHO|ECHOE|ISIG);
+        m_termOption.c_oflag&=~OPOST;
+
+        tcsetattr(m_fd,TCSANOW,&m_termOption);
+
+//        tcflush(m_fd,TCIOFLUSH);
+        gOut<<"termios setted."<<std::endl;
 }
 
 
 tvGPIO::~tvGPIO()
 {
 	gpioTerminate();
+        close(m_fd);
+        std::cout<<"file closed"<<std::endl;
+        gOut<<"Termianl IO port closed"<<std::endl;
+
+	if (chmod("/dev/ttyUSB0", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
+		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
+			<< "May have risk that others write into this file." << std::endl;
+	}
+
 }
 
 void tvGPIO::ledFlash(const int &ledPinNum, int delaytime)
@@ -41,87 +86,63 @@ void tvGPIO::ledFlash(const int &ledPinNum, int delaytime)
 	}
 }
 
-std::unique_ptr<uint16_t> tvGPIO::daqByNum() const
+std::vector<uint16_t> tvGPIO::daqByNum() const
 {
-	uint16_t element;
-	std::unique_ptr<uint16_t> vElement(new uint16_t[TC_DNUM]);
-	//change permission to let data aqusition card to write into it
-	if (chmod("/dev/ttyUSB0", S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
-		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
-			<< "Aquired Data cannot write into /dev/ttyUSB0" << std::endl;
-		return nullptr;
-	}
-	/*
-	std::fstream ftty("/dev/ttyUSB0", std::ios::in|std::ios::binary|std::ios::ate);
-	if (ftty.is_open()) {
-		this->daqStart();
-		//std::cout << "[GPIO: ]";
-		ftty.sync();
-		for (uint16_t num = 0; num < TC_DNUM; num++) {
-			ftty >> element;
-			//gOut << element << ", ";
-			if (element > std::bitset<TC_PREC>(0xffff).to_ulong()) {//data maximum not exceed 2^TC_PREC
-				num--;
-				continue;
-			}
-			*(vElement.get() + num) = element;
-		}
-		this->daqStop();
+	//std::shared_ptr<uint16_t> vElement(new uint16_t[TC_DNUM]);
+        std::vector<uint16_t> vElement(TC_DNUM); 
 
-		gOut << "Aquired data from Arduino in " << TC_DNUM * 2 << " bytes." << std::endl;
-		gOut << "Remained " << ftty.rdbuf()->in_avail() << " bytes unread" << std::endl;
+        /*
+        auto recv=read(m_fd,(char*)vElement.get(),TC_DNUM*2);
+        std::cout<<"Read Count From /dev/ttyUSB0: "<<recv<<std::endl;
 
-		ftty.sync();
-		ftty.close();
-		return vElement;
-	}
-	else {//not openend
-		gOut << "USB port is not connected." << std::endl;
-	}
-*/
-	if (chmod("/dev/ttyUSB0", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
-		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
-			<< "May have risk that others write into this file." << std::endl;
-	}
-	return nullptr;
+        if(recv<0){
+            throw std::logic_error("tvGPIO.cpp line 90, read error");
+        };
+
+        for(uint8_t num=0;num<TC_DNUM;num++){
+            std::cout<<*(vElement.get()+num)<<std::endl;
+        }
+        */
+        constexpr uint8_t TC_DNUM_BYTES = 2*TC_DNUM;
+        char temp[TC_DNUM_BYTES];
+        
+        memset(temp,0,TC_DNUM_BYTES);
+        syncfs(m_fd);
+
+        //flush Serial Port
+        //
+        
+        
+        //Read Serial Port
+        int ret;
+        ret = read(m_fd,temp,TC_DNUM_BYTES);
+        std::cout<<"Read Return: "<<ret<<std::endl;
+
+        if(ret==-1){
+            std::cout<<"File Discriptor: "<<m_fd<<std::endl;
+            throw std::logic_error("Cannot Open /dev/ttyUSB0, Make sure permission is correct.");
+        }
+        if(ret==0){
+            return vElement;
+        }
+
+        uint16_t element;
+        char b1;
+        char b2;
+        uint8_t index=0;
+        for(uint8_t num=0;num<ret-1;num+=2){
+            b1=temp[num];
+            b2=temp[num+1];
+            element=b2;
+            element<<=8;
+            element|=b1;
+            std::cout<<element<<std::endl;
+            vElement[index]=element;
+            index++;
+        }
+	return vElement;
 }
 
 void tvGPIO::daqByTime()
 {
-	uint16_t element;
-	//change permission to let data aqusition card to write into it
-	if (chmod("/dev/ttyUSB0", S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
-		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
-			<< "Aquired Data cannot write into /dev/ttyUSB0" << std::endl;
-		return;
-	}
-
-	//start aquiring data
-	this->daqStart();
-	gpioDelay(2000);
-	//---------------IMPORTANT----------------
-	// gpioDelay, gpio controller delayed but program will go on
-	//---------------IMPORTANT---------------
-	this->daqStop();
-	// wait seconds
-	usleep(3000);
-
-	std::fstream ftty("/dev/ttyUSB0", std::ios::in);
-	if (ftty.is_open()) {//opened
-		//collect data from /dev/ttyUSB0
-		uint16_t bufSz = ftty.rdbuf()->in_avail();
-		gOut << "Has aquired " << bufSz << " in bytes." << std::endl;
-		for (uint16_t num = 0; num < bufSz / 2; num++) {
-			ftty >> element;
-			std::cout << element << ", ";
-		}
-		gOut << std::endl << "DAQ end." << std::endl;
-	}
-	else {//not openend
-		gOut << "USB port is not connected." << std::endl;
-	}
-	if (chmod("/dev/ttyUSB0", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
-		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
-			<< "May have risk that others write into this file." << std::endl;
-	}
 }
