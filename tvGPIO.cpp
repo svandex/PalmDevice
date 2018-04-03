@@ -15,11 +15,13 @@ tvGPIO::tvGPIO()
 	gpioSetMode(TC_DC, PI_OUTPUT);
 	gpioWrite(TC_DC, PI_HIGH);
         //Permisson change to let data be written by Arduino to /dev/ttyUSB0
+        /*
 	if (chmod("/dev/ttyUSB0", S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
 			<< "Aquired Data cannot write into /dev/ttyUSB0" << std::endl;
 		return;
 	}
+        */
 
         m_fd=open("/dev/ttyUSB0",O_RDONLY|O_NOCTTY|O_NDELAY,S_IRWXU | S_IRWXG | S_IRWXO);
 //        m_fd=open("/dev/ttyUSB0",O_RDONLY|O_NOCTTY,S_IRWXU | S_IRWXG | S_IRWXO);
@@ -36,8 +38,8 @@ tvGPIO::tvGPIO()
 
         //Terminal IO Setting
         tcgetattr(m_fd,&m_termOption);
-//        cfsetispeed(&m_termOption,B115200);
-//        cfsetospeed(&m_termOption,B115200);
+        cfsetispeed(&m_termOption,B115200);
+        cfsetospeed(&m_termOption,B115200);
 
         m_termOption.c_ispeed=115200;
         m_termOption.c_ospeed=115200;
@@ -66,16 +68,18 @@ tvGPIO::~tvGPIO()
         close(m_fd);
         std::cout<<"file closed"<<std::endl;
         gOut<<"Termianl IO port closed"<<std::endl;
+        /*
 
 	if (chmod("/dev/ttyUSB0", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
-		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
+		gOut << "When Exit, Cannot Change Permission : /dev/ttyUSB0" << std::endl
 			<< "May have risk that others write into this file." << std::endl;
 	}
+        */
 
 }
 
 void tvGPIO::ledFlash(const int &ledPinNum, int delaytime)
-{
+{/*
 	gpioSetMode(ledPinNum, PI_OUTPUT);
 
 	for (int i = 0; i < 1; i++) {
@@ -84,12 +88,13 @@ void tvGPIO::ledFlash(const int &ledPinNum, int delaytime)
 		gpioWrite(ledPinNum, PI_LOW);
 		gpioDelay(delaytime * 100000);
 	}
+        */
 }
 
-std::vector<uint16_t> tvGPIO::daqByNum() const
+std::vector<uint16_t> tvGPIO::daqByNum(int &size) const
 {
 	//std::shared_ptr<uint16_t> vElement(new uint16_t[TC_DNUM]);
-        std::vector<uint16_t> vElement(TC_DNUM); 
+        std::vector<uint16_t> vElement(TC_DNUM,0); 
 
         /*
         auto recv=read(m_fd,(char*)vElement.get(),TC_DNUM*2);
@@ -107,7 +112,7 @@ std::vector<uint16_t> tvGPIO::daqByNum() const
         char temp[TC_DNUM_BYTES];
         
         memset(temp,0,TC_DNUM_BYTES);
-        syncfs(m_fd);
+        //syncfs(m_fd);
 
         //flush Serial Port
         //
@@ -136,10 +141,18 @@ std::vector<uint16_t> tvGPIO::daqByNum() const
             element=b2;
             element<<=8;
             element|=b1;
-            std::cout<<element<<std::endl;
+            
+            if(element>1024||element<0){
+                continue;
+            }
+            //
+        //    std::cout<<element<<std::endl;
+            //
+
             vElement[index]=element;
             index++;
         }
+        size=index;
 	return vElement;
 }
 

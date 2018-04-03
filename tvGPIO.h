@@ -27,7 +27,7 @@ public:
 	tvGPIO(tvGPIO &) = delete; //cannot copy gpio instance, only one exists
 	~tvGPIO();
 	void ledFlash(const int &ledPinNum, int delaytime);
-        std::vector<uint16_t> daqByNum() const;
+        std::vector<uint16_t> daqByNum(int &size) const;
 	void daqByTime();
 protected:
 	void daqStart() const{
@@ -41,6 +41,6 @@ protected:
 private:
 	static int numOfInstance;//no more than one instance
         int m_fd;//file discriptor
-        termios m_termOption;//Terminal IO option
+        struct termios m_termOption;//Terminal IO option
 };
 
