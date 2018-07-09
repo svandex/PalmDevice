@@ -6,10 +6,9 @@ include_directories("D:\\IncludeFiles\\usrInclude"
 					"D:\\IncludeFiles\\usrLocalInclude")
 
 # home pc
-include_directories("C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include"
-					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include\\arm-linux-gnueabihf"
-					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrLocalInclude"
-					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include\\c++\\5")
+include_directories("C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include\\"
+					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include\\arm-linux-gnueabihf\\"
+					"C:\\Users\\svandex\\Documents\\IncludeFiles\\usrLocalInclude\\")
 
 
 # surface pro 4
@@ -23,5 +22,5 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -pthread -Wall")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #add the executable
-add_executable(tvpd tvUSB.cpp tvGPIO.cpp tvHTTP.cpp tvWS.cpp main.cpp )
-target_link_libraries(tvpd cpprest boost_system ssl crypto pigpio rt)
+add_executable(tvpd tvGPIO.cpp tvHTTP.cpp tvWS.cpp main.cpp )
+target_link_libraries(tvpd cpprest boost_system ssl crypto pigpio rt usb-1.0)

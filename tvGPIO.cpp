@@ -27,6 +27,7 @@ tvGPIO::tvGPIO()
 tvGPIO::~tvGPIO()
 {
 	gpioTerminate();
+	gOut << "terminated."<<std::endl;
 }
 
 void tvGPIO::ledFlash(const int &ledPinNum, int delaytime)
@@ -51,10 +52,10 @@ std::unique_ptr<uint16_t> tvGPIO::daqByNum() const
 			<< "Aquired Data cannot write into /dev/ttyUSB0" << std::endl;
 		return nullptr;
 	}
-	/*
-	std::fstream ftty("/dev/ttyUSB0", std::ios::in|std::ios::binary|std::ios::ate);
+
+	std::fstream ftty("/dev/ttyUSB0", std::ios::in);//|std::ios::binary|std::ios::ate);
 	if (ftty.is_open()) {
-		this->daqStart();
+		daqStart();
 		//std::cout << "[GPIO: ]";
 		ftty.sync();
 		for (uint16_t num = 0; num < TC_DNUM; num++) {
@@ -66,7 +67,7 @@ std::unique_ptr<uint16_t> tvGPIO::daqByNum() const
 			}
 			*(vElement.get() + num) = element;
 		}
-		this->daqStop();
+		daqStop();
 
 		gOut << "Aquired data from Arduino in " << TC_DNUM * 2 << " bytes." << std::endl;
 		gOut << "Remained " << ftty.rdbuf()->in_avail() << " bytes unread" << std::endl;
@@ -78,7 +79,8 @@ std::unique_ptr<uint16_t> tvGPIO::daqByNum() const
 	else {//not openend
 		gOut << "USB port is not connected." << std::endl;
 	}
-*/
+
+
 	if (chmod("/dev/ttyUSB0", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
 		gOut << "Cannot Change Permission : /dev/ttyUSB0" << std::endl
 			<< "May have risk that others write into this file." << std::endl;
