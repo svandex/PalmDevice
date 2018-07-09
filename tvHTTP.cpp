@@ -1,10 +1,4 @@
 ﻿#include "tvHTTP.h"
-#include <regex>
-#include <cpprest/streams.h>
-#include <cpprest/filestream.h>
-#include <cpprest/json.h>
-#include <unistd.h>
-#include <thread>
 
 std::string httpPrompt("[HTTP]: ");
 #define hOut std::cout<<httpPrompt
@@ -32,7 +26,7 @@ tvHTTP::~tvHTTP()
 
 void tvHTTP::handle_get(http_request message)
 {
-	gpio.ledFlash(TC_HTTPS, 1);
+	//gpio.ledFlash(TC_HTTPS, 1);
 	//hOut << message.to_string() << std::endl;
 	hOut << message.absolute_uri().to_string() << std::endl;
 
@@ -68,20 +62,35 @@ void tvHTTP::handle_get(http_request message)
 
 	//URI "/testJson" to send back json data
 	if (message.absolute_uri().to_string() == "/testjson") {
-		auto result = gpio.daqByNum();
+            try{
+                int result_size=0;
+		auto result = gpio.daqByNum(result_size);
+                /*
 		if (!result.get()) {
 			hOut << "No Data Returned, Pointer is empty" << std::endl;
 			return;
 		}
+                */
+                if(result_size==0){
+                    hOut<<"No Data Aquired."<<std::endl;
+                    return;
+                }
+
 		web::json::value v;
-		for (auto i = 1; i < TC_DNUM; i++) {
+		for (auto i = 0; i < result_size; i++) {
 			//hOut << *(result.get() + i);
-			v[std::to_string(i)] = *(result.get() + i);
-		}
-//		web::json::value v = json::value::parse(U("\[\[1,7\],\[2,6\],\[3,1\],\[4,6\],\[5,2\],\[6,6\],\[7,3\],\[8,9\],\[9,4\],\[10,2\],\[11,9\],\[12,8\]\]"));
+			//v[std::to_string(i)] = *(result.get() + i);
+			v[std::to_string(i)] = result[i];
+		//web::json::value v = json::value::parse(U("\[\[1,7\],\[2,6\],\[3,1\],\[4,6\],\[5,2\],\[6,6\],\[7,3\],\[8,9\],\[9,4\],\[10,2\],\[11,9\],\[12,8\]\]"));
+		//web::json::value v = json::value::parse(U("[[1,7],[2,6],[3,1],[4,6],[5,2],[6,6],[7,3],[8,9],[9,4],[10,2],[11,9],[12,8]]"));
+                }
 		message_response.set_body(v);
 		message_response.set_status_code(status_codes::OK);
 		message.reply(message_response);
+            }catch(std::logic_error e){
+                std::cout<<e.what()<<std::endl;
+                return;
+            }
 	}
 
 	//Print response and replay to the request

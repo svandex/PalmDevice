@@ -4,6 +4,12 @@
 #include <cpprest/http_listener.h>
 #include <cpprest/uri.h>
 #include <cpprest/asyncrt_utils.h>
+#include <cpprest/streams.h>
+#include <cpprest/filestream.h>
+
+#include <regex>
+#include <unistd.h>
+#include <thread>
 
 using namespace web;
 using namespace http;

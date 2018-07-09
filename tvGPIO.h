@@ -1,10 +1,24 @@
 #pragma once
 
+#include "tvConfig.h"    
+
 #include <pigpio.h>
 #include <vector>
 #include <memory>
+#include <iostream>
 
-#include "tvConfig.h"
+//Serial Port 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <errno.h>
+#include <pthread.h>
+
+#include <memory.h>
 
 class tvGPIO
 {
@@ -13,7 +27,7 @@ public:
 	tvGPIO(tvGPIO &) = delete; //cannot copy gpio instance, only one exists
 	~tvGPIO();
 	void ledFlash(const int &ledPinNum, int delaytime);
-	std::unique_ptr<uint16_t> daqByNum() const;
+        std::vector<uint16_t> daqByNum(int &size) const;
 	void daqByTime();
 protected:
 	void daqStart() const{
@@ -26,5 +40,7 @@ protected:
 	}
 private:
 	static int numOfInstance;//no more than one instance
+        int m_fd;//file discriptor
+        struct termios m_termOption;//Terminal IO option
 };
 

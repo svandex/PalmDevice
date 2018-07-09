@@ -10,8 +10,8 @@ extern tvGPIO gpio;
 extern std::unique_ptr<tvHTTP> g_http;
 
 void on_message(wsserver* s, websocketpp::connection_hdl hdl, wsserver::message_ptr msg)
-{
-	std::unique_ptr<uint16_t> SendData = gpio.daqByNum();
+{/*
+	auto SendData = gpio.daqByNum();
 	if (SendData == nullptr) {
 		wsOut << "No data has been aquired." << std::endl;
 		return;
@@ -27,6 +27,7 @@ void on_message(wsserver* s, websocketpp::connection_hdl hdl, wsserver::message_
 	auto con = s->get_con_from_hdl(hdl);
 	con->send((void*)SendData.get(), sizeof(TC_DNUM * 2), websocketpp::frame::opcode::binary);
 	//con->send("hello world", 11, websocketpp::frame::opcode::text);
+        */
 }
 
 tvWS::tvWS()

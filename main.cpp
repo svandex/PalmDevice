@@ -29,9 +29,9 @@ Feature:
 
 #include <thread>
 
-tvGPIO gpio;								//only one gpio instance could exist, take care about multi-thread situation
-std::unique_ptr<tvWS> g_WS;					//websocket server instance
-std::unique_ptr<tvHTTP> g_http;				//http server instance
+tvGPIO gpio;					//only one gpio instance could exist, take care about multi-thread situation
+std::unique_ptr<tvWS> g_WS;			//websocket server instance
+std::unique_ptr<tvHTTP> g_http;			//http server instance
 
 int main(int argc, char* argv[]) {
 
