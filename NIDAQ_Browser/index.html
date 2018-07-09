@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>three.js webgl - STL</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			font-family: Monospace;
+			background-color: #000000;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		#info {
+			color: #fff;
+			position: absolute;
+			top: 10px;
+			width: 100%;
+			text-align: center;
+			z-index: 100;
+			display: block;
+
+		}
+
+		a {
+			color: skyblue
+		}
+
+		.button {
+			background: #999;
+			color: #eee;
+			padding: 0.2em 0.5em;
+			cursor: pointer
+		}
+
+		.highlight {
+			background: orange;
+			color: #fff;
+		}
+
+		span {
+			display: inline-block;
+			width: 60px;
+			float: none;
+			text-align: center;
+		}
+
+		#gaugeleft {
+			position: absolute;
+			top: 60%;
+			left: 20%;
+			width: 30%;
+			height: 30%;
+		}
+
+		#gaugeright {
+			position: absolute;
+			top: 60%;
+			left: 50%;
+			width: 30%;
+			height: 30%;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="info">
+		<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - Door Open Simulation by
+		<a href="https://saicmotor.com">SAIC-TV-RIG</a>.
+		<br/>
+		<br/>
+		<br/> 群慧创新工作室
+		<br/>
+		<br/> 手持式智能仪器
+	</div>
+
+	<div id="gaugeleft"></div>
+	<div id="gaugeright"></div>
+
+	<script src="./three.js/build/three.js"></script>
+	<script src="./three.js/examples/js/loaders/STLLoader.js"></script>
+	<script src="./three.js/examples/js/Detector.js"></script>
+	<script src="./three.js/examples/js/libs/stats.min.js"></script>
+
+	<script src="./incubator-echarts/dist/echarts-en.min.js"></script>
+	<script>
+		//websocket
+		var jsondata;
+		var rearDoorPosition, frontDoorDegree;
+		var rdpArr = new Array(20);
+		var fdpArr = new Array(20);
+		var connection = new WebSocket('ws://192.168.1.101:9002');
+
+		connection.onmessage = function (e) {
+			//console.log(e.data);
+			jsondata = JSON.parse(e.data);
+			rearDoorPosition = 0.07 * (jsondata["ch3"] - 0.8) + 0.01;
+			frontDoorDegree = jsondata["fdd"];
+
+			//Array Setting
+			rdpArr.shift();
+			rdpArr.push(rearDoorPosition);
+
+			fdpArr.shift();
+			fdpArr.push(frontDoorDegree);
+
+			//console.log(rearDoorPosition);
+			/*
+			option.series = [{
+				name: 'Front Door Position',
+				type: 'gauge',
+				data: fdpArr
+			}, {
+				name: 'Rear Door Postion',
+				type: 'gauge',
+				data: rdpArr
+			}];*/
+			optionLeft.series.data.value = frontDoorDegree;
+			optionRight.series.data.value = rearDoorPosition;
+
+			myChartLeft.setOption(optionLeft);
+			myChartRight.setOption(optionRight);
+		};
+		connection.onerror = function (e) {
+			console.log("Error on WS connection");
+		}
+		//echart
+		var myChartLeft = echarts.init(document.getElementById('gaugeleft'));
+		var myChartRight = echarts.init(document.getElementById('gaugeright'));
+
+		var optionLeft = {
+			tooltip: {
+				formatter: "{a}<br/>{b}:{c}%"
+			},
+			series: {
+				name: 'Front Door Position',
+				type: 'gauge',
+				data: { value: 0, name: 'Front Door Position' }
+			}
+		};
+
+		var optionRight = {
+			tooltip: {
+				formatter: "{a}<br/>{b}:{c}%"
+			},
+			series: {
+				name: 'Rear Door Position',
+				type: 'gauge',
+				data: { value: 0, name: 'Rear Door Position' }
+			}
+		};
+
+		myChartLeft.setOption(optionLeft);
+		myChartRight.setOption(optionRight);
+
+		//three.js
+		if (!Detector.webgl) Detector.addGetWebGLMessage();
+
+		var container, stats;
+
+		var camera, cameraTarget, scene, renderer;
+
+		var frontdoor, reardoor;
+
+		init();
+		animate();
+
+		function init() {
+
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 15);
+			camera.position.set(0.6, 1, 2);
+
+			cameraTarget = new THREE.Vector3(0, -0.25, 0);
+
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0x72645b);
+			scene.fog = new THREE.Fog(0x72645b, 2, 15);
+
+			//Axes
+			var AxesH = new THREE.AxesHelper(0.1);
+			scene.add(AxesH);
+
+			// Ground
+
+			var plane = new THREE.Mesh(
+				new THREE.PlaneBufferGeometry(40, 40),
+				new THREE.MeshPhongMaterial({ color: 0x999999, specular: 0x101010 })
+			);
+			plane.rotation.x = -Math.PI / 2;
+			plane.position.y = -0.5;
+			scene.add(plane);
+
+			plane.receiveShadow = true;
+
+
+			// ASCII file
+			var loader = new THREE.STLLoader();
+			/*
+			loader.load( '../three.js/examples/models/stl/ascii/slotted_disk.stl', function ( geometry ) {
+
+				var material = new THREE.MeshPhongMaterial( { color: 0xff5533, specular: 0x111111, shininess: 200 } );
+				var mesh = new THREE.Mesh( geometry, material );
+
+				mesh.position.set( 0, - 0.25, 0.6 );
+				mesh.rotation.set( 0, - Math.PI / 2, 0 );
+				mesh.scale.set( 0.5, 0.5, 0.5 );
+
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+
+				scene.add( mesh );
+
+			} );
+*/
+
+			// Binary files
+
+			var material = new THREE.MeshPhongMaterial({ color: 0x4422FF, specular: 0x111111, shininess: 200 });
+
+			//loader.load( './models/stl/binary/pr2_head_pan.stl', function ( geometry ) {
+			loader.load('./model/body.stl', function (geometry) {
+
+				var mesh = new THREE.Mesh(geometry, material);
+
+				mesh.position.set(0, -0.5, 0);
+				mesh.rotation.set(- Math.PI / 2, 0, 0);
+				mesh.scale.set(0.1, 0.1, 0.1);
+
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+
+				scene.add(mesh);
+
+			});
+
+			var materialdoor = new THREE.MeshPhongMaterial({ color: 0xFF1111, specular: 0x111111, shininess: 200 });
+			//loader.load( '../three.js/examples/models/stl/binary/pr2_head_tilt.stl', function ( geometry ) {
+			loader.load('./model/rear.door.stl', function (geometry) {
+
+				var mesh = new THREE.Mesh(geometry, materialdoor);
+
+				mesh.position.set(0, -0.19, -0.04);
+				mesh.rotation.set(Math.PI / 2, Math.PI, 0);
+				mesh.scale.set(0.064, 0.064, 0.064);
+
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+
+				reardoor = mesh;
+
+				scene.add(mesh);
+
+			});
+
+			var materialFdoor = new THREE.MeshPhongMaterial({ color: 0xFF1111, specular: 0x111111, shininess: 200 });
+			//loader.load( '../three.js/examples/models/stl/binary/pr2_head_tilt.stl', function ( geometry ) {
+			loader.load('./model/front.door.stl', function (geometry) {
+
+				var mesh = new THREE.Mesh(geometry, materialFdoor);
+
+				mesh.position.set(-0.3, -0.26, -0.05);
+				mesh.rotation.set(-Math.PI / 2, 0, 0);
+				mesh.scale.set(0.18, 0.18, 0.18);
+
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+
+				frontdoor = mesh;
+
+				scene.add(mesh);
+
+			});
+			/*
+							var materialFHandle = new THREE.MeshPhongMaterial( { color: 0x223311, specular: 0x111111, shininess: 200 } );
+							loader.load( './model/front.handle.stl', function ( geometry ) {
+			
+								var mesh = new THREE.Mesh( geometry, meshMaterial );
+			
+								mesh.position.set( 0, 0, 0 );
+								mesh.rotation.set( - Math.PI / 2, Math.PI / 2, 0 );
+								mesh.scale.set( 3, 3, 3 );
+			
+								mesh.castShadow = true;
+								mesh.receiveShadow = true;
+			
+								scene.add( mesh );
+			
+							} );
+			*/
+			// Lights
+
+			scene.add(new THREE.HemisphereLight(0x443333, 0x111122));
+
+			addShadowedLight(1, 1, 1, 0xffffff, 1.35);
+			addShadowedLight(0.5, 1, -1, 0xffaa00, 1);
+			// renderer
+
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+			renderer.gammaInput = true;
+			renderer.gammaOutput = true;
+
+			renderer.shadowMap.enabled = true;
+
+			container.appendChild(renderer.domElement);
+
+			// stats
+
+			stats = new Stats();
+			container.appendChild(stats.dom);
+
+			//
+
+			window.addEventListener('resize', onWindowResize, false);
+
+		}
+
+		function addShadowedLight(x, y, z, color, intensity) {
+
+			var directionalLight = new THREE.DirectionalLight(color, intensity);
+			directionalLight.position.set(x, y, z);
+			scene.add(directionalLight);
+
+			directionalLight.castShadow = true;
+
+			var d = 1;
+			directionalLight.shadow.camera.left = -d;
+			directionalLight.shadow.camera.right = d;
+			directionalLight.shadow.camera.top = d;
+			directionalLight.shadow.camera.bottom = -d;
+
+			directionalLight.shadow.camera.near = 1;
+			directionalLight.shadow.camera.far = 4;
+
+			directionalLight.shadow.mapSize.width = 1024;
+			directionalLight.shadow.mapSize.height = 1024;
+
+			directionalLight.shadow.bias = -0.002;
+
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame(animate);
+
+			render();
+			stats.update();
+
+		}
+
+		function render() {
+
+			var timer = Date.now() * 0.0005;
+			/*
+							camera.position.x = Math.cos( timer ) * 3;
+							camera.position.z = Math.sin( timer ) * 3;
+							*/
+			connection.send("Give Me Code");
+			//frontdoor.rotation.z = -0.3 * (Math.cos(timer) + 1);
+			frontdoor.rotation.z = -0.6 * frontDoorDegree;
+			//reardoor.position.x = 0.1*(Math.cos(timer)+1)+0.01;
+			reardoor.position.x = rearDoorPosition;
+
+			camera.lookAt(cameraTarget);
+
+			renderer.render(scene, camera);
+
+		}
+
+	</script>
+</body>
+
+</html>

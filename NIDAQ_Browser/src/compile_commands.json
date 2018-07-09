@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/tvrig/Desktop/3dExhib/src/build",
+  "command": "/usr/bin/c++   -I/home/tvrig/GitHub/uWebSockets/src    -o CMakeFiles/exhib.dir/main.cpp.o -c /home/tvrig/Desktop/3dExhib/src/main.cpp",
+  "file": "/home/tvrig/Desktop/3dExhib/src/main.cpp"
+}
+]
