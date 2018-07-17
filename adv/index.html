@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript">
+        function addRow() {
+            var addNum;
+            var table = document.getElementById("advlist");
+            var tableRowNum = table.rows.length;
+
+            var tno = document.getElementById("testno");
+            var tname = document.getElementById("testname");
+            var tf = document.getElementById("testfee");
+            var tdf = document.getElementById("delegatefee");
+            var tlf = document.getElementById("labourfee");
+
+            if (parseInt(tno) > tableRowNum) {
+                addNum = tableRowNum + 1;//only add after the existed largetst row number
+                var row = table.insertRow(tableRowNum);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <br/>
+    <table id="advlist">
+        <col>
+        <col>
+        <col>
+        <caption>ADV清单</caption>
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th>试验名称</th>
+                <th>试验费</th>
+                <th>委外试验费</th>
+                <th>劳务费</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>侧门SLAM</td>
+                <td>300</td>
+                <td>900</td>
+                <td>200</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>CREST</td>
+                <td>800</td>
+                <td>1000</td>
+                <td>500</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>腐蚀试验</td>
+                <td>8000</td>
+                <td>20000</td>
+                <td>5000</td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" id="testno" required>
+                </td>
+                <td>
+                    <input type="text" id="testname">
+                </td>
+                <td>
+                    <input type="text" id="testfee">
+                </td>
+                <td>
+                    <input type="text" id="delegatefee">
+                </td>
+                <td>
+                    <input type="text" id="labourfee">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <br/>
+    <br/>
+    <button id="additem">增加/修改</button>
+    <button id="delitem">删除</button>
+    <button id="exportitem">导出Excel表格</button>
+</html>
