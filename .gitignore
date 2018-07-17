@@ -32,9 +32,6 @@
 *.app
 
 .vs/*
-.vscode/*
-build/*
-linux/Debug/*
-linux/.vs/*
-linux/SmallCar/bin/*
-linux/SmallCar/obj/*
+adv/.vs/*
+adv/.vscode/*
+adv/build/*
