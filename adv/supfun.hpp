@@ -1,8 +1,11 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
+#include <rapidjson/document.h>
 
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
+
+#include <xlnt/xlnt.hpp>
 
 typedef websocketpp::server<websocketpp::config::asio> server;
 using websocketpp::lib::bind;

@@ -8,7 +8,6 @@ std::string juncheng::send_file_to_client(server::connection_ptr &con, const std
     std::string response;
     //filepath
     std::string filepath = rootpath + resURI;
-    std::cout<<"PATH:"<<filepath<<std::endl;
     //std::basic_fstream<encoding> file;
     //file.open(filepath.c_str(), std::ios::in|std::ios::out|std::ios::binary);
     std::FILE *file = std::fopen(filepath.c_str(), "rb");
@@ -55,6 +54,7 @@ std::string juncheng::send_file_to_client(server::connection_ptr &con, const std
 void juncheng::on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr msg)
 {
     //RapidJSON
+    /*
     rapidjson::StringBuffer jsons;
     rapidjson::Writer<rapidjson::StringBuffer> writer(jsons);
 
@@ -62,6 +62,33 @@ void juncheng::on_message(server *s, websocketpp::connection_hdl hdl, server::me
     writer.EndObject();
 
     s->send(hdl, std::string(jsons.GetString()), websocketpp::frame::opcode::TEXT);
+    */
+    rapidjson::Document d;
+    d.Parse(msg->get_payload().c_str());
+    //excel file generation
+    std::cout<<msg->get_payload()<<std::endl;
+    uint16_t indexCap = d.Size();
+
+    try
+    {
+        xlnt::workbook wb;
+        xlnt::worksheet ws = wb.active_sheet();
+        for (uint16_t index = 0; index < indexCap; index++)
+        {
+            ws.cell(index+1, 1).value(d[index]["testno"].GetString());
+            ws.cell(index+1, 2).value(d[index]["testname"].GetString());
+            ws.cell(index+1, 3).value(d[index]["testfee"].GetString());
+            ws.cell(index+1, 4).value(d[index]["delegatefee"].GetString());
+            ws.cell(index+1, 5).value(d[index]["labourfee"].GetString());
+        }
+        wb.save("test.xlsx");
+    }
+    catch (std::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+    }
+
+    s->send(hdl, "Excel", websocketpp::frame::opcode::TEXT);
 }
 
 void juncheng::on_http(server *s, websocketpp::connection_hdl hdl)

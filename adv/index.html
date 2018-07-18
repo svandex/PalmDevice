@@ -4,10 +4,15 @@
 <head>
     <meta charset="utf-8">
     <script type="text/javascript">
+        var con = new WebSocket("ws://" + document.location.hostname + ":9002");
+        con.onmessage = function (response) {
+            console.log(response.data);
+        }
+
         function addRow() {
-            var addNum;
             var table = document.getElementById("advlist");
             var tableRowNum = table.rows.length;
+            console.log(tableRowNum);
 
             var tno = document.getElementById("testno");
             var tname = document.getElementById("testname");
@@ -15,9 +20,55 @@
             var tdf = document.getElementById("delegatefee");
             var tlf = document.getElementById("labourfee");
 
-            if (parseInt(tno) > tableRowNum) {
-                addNum = tableRowNum + 1;//only add after the existed largetst row number
-                var row = table.insertRow(tableRowNum);
+            if (parseInt(tno.value) > tableRowNum) {
+                var oneRow = table.insertRow(tableRowNum);
+
+                var oneCell = oneRow.insertCell(0);
+                oneCell.innerHTML = tableRowNum;
+                var oneCell = oneRow.insertCell(1);
+                oneCell.innerHTML = tname.value;
+                var oneCell = oneRow.insertCell(2);
+                oneCell.innerHTML = testfee.value;
+                var oneCell = oneRow.insertCell(3);
+                oneCell.innerHTML = delegatefee.value;
+                var oneCell = oneRow.insertCell(4);
+                oneCell.innerHTML = labourfee.value;
+            }
+
+            if (parseInt(tno.value) < tableRowNum && parseInt(tno.value) > 0) {
+                table.rows[parseInt(tno.value)].cells[0].innerHTML = parseInt(tno.value);
+                table.rows[parseInt(tno.value)].cells[1].innerHTML = tname.value;
+                table.rows[parseInt(tno.value)].cells[2].innerHTML = parseInt(testfee.value);
+                table.rows[parseInt(tno.value)].cells[3].innerHTML = parseInt(delegatefee.value);
+                table.rows[parseInt(tno.value)].cells[4].innerHTML = parseInt(labourfee.value);
+            }
+        }
+
+        function delRow() {
+            var tno = document.getElementById("testno");
+            var table = document.getElementById("advlist");
+            var tableRowNum = table.rows.length;
+            if (parseInt(tno.value) < tableRowNum && parseInt(tno.value) > 0) {
+                table.deleteRow(parseInt(tno.value));
+            }
+        }
+
+        function exportExcel() {
+            var table = document.getElementById("advlist");
+            var tableRowNum = table.rows.length;
+            var json = [];
+            for (var index = 1; index < tableRowNum; index++) {
+                var temp = {};
+                temp.testno = table.rows[index].cells[0].innerHTML;
+                temp.testname = table.rows[index].cells[1].innerHTML;
+                temp.testfee = table.rows[index].cells[2].innerHTML;
+                temp.delegatefee = table.rows[index].cells[3].innerHTML;
+                temp.labourfee = table.rows[index].cells[4].innerHTML;
+                json.push(temp);
+            }
+
+            if (con.readyState == 1) {
+                con.send(JSON.stringify(json));
             }
         }
     </script>
@@ -30,16 +81,16 @@
         <col>
         <col>
         <caption>ADV清单</caption>
-        <thead>
+        <thead align="left">
             <tr>
-                <th>序号</th>
-                <th>试验名称</th>
-                <th>试验费</th>
-                <th>委外试验费</th>
-                <th>劳务费</th>
+                <th width="5%">序号</th>
+                <th width="5%">试验名称</th>
+                <th width="5%">试验费</th>
+                <th width="5%">委外试验费</th>
+                <th width="5%">劳务费</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="tbodyStr">
             <tr>
                 <td>1</td>
                 <td>侧门SLAM</td>
@@ -61,28 +112,18 @@
                 <td>20000</td>
                 <td>5000</td>
             </tr>
-            <tr>
-                <td>
-                    <input type="text" id="testno" required>
-                </td>
-                <td>
-                    <input type="text" id="testname">
-                </td>
-                <td>
-                    <input type="text" id="testfee">
-                </td>
-                <td>
-                    <input type="text" id="delegatefee">
-                </td>
-                <td>
-                    <input type="text" id="labourfee">
-                </td>
-            </tr>
         </tbody>
     </table>
     <br/>
+    <input type="text" id="testno" required pattern="[0-9]*">
+    <input type="text" id="testname">
+    <input type="text" id="testfee" pattern="[0-9]*">
+    <input type="text" id="delegatefee" pattern="[0-9]*">
+    <input type="text" id="labourfee" pattern="[0-9]*">
     <br/>
-    <button id="additem">增加/修改</button>
-    <button id="delitem">删除</button>
-    <button id="exportitem">导出Excel表格</button>
+    <br/>
+    <button id="additem" onclick="addRow();">增加/修改</button>
+    <button id="delitem" onclick="delRow();">删除</button>
+    <button id="exportitem" onclick="exportExcel();">导出Excel表格</button>
+
 </html>

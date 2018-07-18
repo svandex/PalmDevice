@@ -35,3 +35,4 @@
 adv/.vs/*
 adv/.vscode/*
 adv/build/*
+adv/test/*
