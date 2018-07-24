@@ -75,11 +75,11 @@ void juncheng::on_message(server *s, websocketpp::connection_hdl hdl, server::me
         xlnt::worksheet ws = wb.active_sheet();
         for (uint16_t index = 0; index < indexCap; index++)
         {
-            ws.cell(index+1, 1).value(d[index]["testno"].GetString());
-            ws.cell(index+1, 2).value(d[index]["testname"].GetString());
-            ws.cell(index+1, 3).value(d[index]["testfee"].GetString());
-            ws.cell(index+1, 4).value(d[index]["delegatefee"].GetString());
-            ws.cell(index+1, 5).value(d[index]["labourfee"].GetString());
+            ws.cell(1,index+ 1).value(d[index]["testno"].GetString());
+            ws.cell(2, index+1).value(d[index]["testname"].GetString());
+            ws.cell(3, index+1).value(d[index]["testfee"].GetString());
+            ws.cell(4, index+1).value(d[index]["delegatefee"].GetString());
+            ws.cell(5, index+1).value(d[index]["labourfee"].GetString());
         }
         wb.save("test.xlsx");
     }

@@ -20,7 +20,7 @@
             var tdf = document.getElementById("delegatefee");
             var tlf = document.getElementById("labourfee");
 
-            if (parseInt(tno.value) > tableRowNum) {
+            if (parseInt(tno.value) >= tableRowNum) {
                 var oneRow = table.insertRow(tableRowNum);
 
                 var oneCell = oneRow.insertCell(0);

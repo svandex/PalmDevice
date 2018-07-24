@@ -11,4 +11,4 @@ include_directories(
     ${CMAKE_SOURCE_DIR}
     )
 add_executable(ecd main.cpp supfun.cpp)
-target_link_libraries(ecd boost_system-vc140-mt xlnt)
+target_link_libraries(ecd boost_system-vc140-mt xlntd)
