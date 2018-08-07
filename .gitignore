@@ -36,3 +36,6 @@ adv/.vs/*
 adv/.vscode/*
 adv/build/*
 adv/test/*
+
+nidaqmx_demo/src/build/*
+nidaqmx_demo/src/.vscode/*
