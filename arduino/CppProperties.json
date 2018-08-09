@@ -1,0 +1,44 @@
+{
+  "configurations": [
+    {
+      "inheritEnvironments": [
+        "linux_arm"
+      ],
+      "name": "Linux-Debug",
+      "includePath": [
+        "${env.INCLUDE}",
+        "${workspaceRoot}\\**",
+        "C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include",
+        "C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include\\arm-linux-gnueabihf",
+        "C:\\Users\\svandex\\Documents\\IncludeFiles\\usrLocalInclude",
+        "C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include\\c++\\5"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "intelliSenseMode": "linux-gcc-arm"
+    },
+    {
+      "inheritEnvironments": [
+        "linux_arm"
+      ],
+      "name": "Linux-Release",
+      "includePath": [
+        "${env.INCLUDE}",
+        "${workspaceRoot}\\**",
+        "C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include",
+        "C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include\\arm-linux-gnueabihf",
+        "C:\\Users\\svandex\\Documents\\IncludeFiles\\usrLocalInclude",
+        "C:\\Users\\svandex\\Documents\\IncludeFiles\\usrInclude\\include\\c++\\5"
+      ],
+      "defines": [
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "intelliSenseMode": "linux-gcc-arm"
+    }
+  ]
+}
