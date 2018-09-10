@@ -39,3 +39,8 @@ adv/test/*
 
 tif2018/src/build/*
 tif2018/src/.vscode/*
+
+ws/.vscode
+ws/rapidjson
+ws/websocketpp
+ws/build
