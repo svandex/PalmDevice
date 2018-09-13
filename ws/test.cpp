@@ -11,6 +11,8 @@ using websocketpp::lib::placeholders::_2;
 
 void on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr msg)
 {
+try{
+	std::cout<<msg->get_payload()<<std::endl;
     //test JSON msg
     rapidjson::StringBuffer sb;
     rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
@@ -36,6 +38,9 @@ void on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr 
     writer.EndObject();
 
     s->send(hdl, std::string(sb.GetString()), websocketpp::frame::opcode::TEXT);
+}catch(websocketpp::exception const &e){
+	std::cout<<e.what()<<std::endl;
+}
 }
 
 int main(int argc, char *argv[])

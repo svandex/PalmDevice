@@ -1,0 +1,27 @@
+body {
+	background-color: #F8F8F8;
+}
+div[id=sex] {
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+	height: 300px;
+	width: 600px;
+	margin-left: 15%;
+	position: absolute;
+}
+div[id=spl] {
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+	height: 300px;
+	width: 600px;
+	position: absolute;
+}
+img {
+	width: 120px;
+	height: 120px;
+}
+button {
+	background-color: #FAFAD2;
+}
