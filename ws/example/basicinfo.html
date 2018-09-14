@@ -7,7 +7,7 @@
 </head>
 <body>
 	<h1>员工信息收集和汇总</h1>
-	<form name="testForm" id="testForm">
+	<div>
 		<fieldset>
 			<legend>基本信息：</legend>
 			姓名：<input type="text" name="name" id="name" required="required" placeholder="Your name" /><br>
@@ -18,19 +18,72 @@
 				 <input type="checkbox" name="speciality" value="running" />跑步
 				 <input type="checkbox" name="speciality" value="basketball" />篮球
 				 <input type="checkbox" name="speciality" value="football" />足球<br>
-			头像：<input type="file" name="pic" accept="image/*" /><br>
 			<input type="submit" name="submit" onclick="dataSend()" />
 			<input type="reset" name="reset" />
 		</fieldset>
-	</form>
+	</div>
 	<h2>信息汇总：</h2>
-	<script type="text/javascript" src="dataSend.js"></script>
-	<script>
+	<script type="text/javascript">
 		var ws = new WebSocket("ws://localhost:9002");
 		ws.onopen = function() {
 			alert("WS Open");
-			ws.send('ttttest');
 		}
+		function dataSend() {
+			var ori = document.getElementsByTagName('input');
+			var sname=[], svalue = [];
+			for (var i=0; i<ori.length; i++) {
+				if (ori[i].name == 'submit' || ori[i].name == 'reset') continue;
+				sname[i]=ori[i].name;
+				if (ori[i].type == 'radio' || ori[i].type == 'checkbox') {
+					if (ori[i].checked) {
+						svalue[i] = ori[i].value;
+					} else {
+						svalue[i] = '';
+					}
+				} else {
+					svalue[i] = ori[i].value;
+				}
+			}
+			var nname=[], nvalue=[];
+			nname[0] = sname[0];
+			//nname initialization
+			for (var i=1; i<sname.length; i++) {
+				if (sname[i] != nname[nname.length-1]) {
+					nname[nname.length] = sname[i];
+				} else {
+					continue;
+				}
+			}
+			//nvalue initialization
+			var curr=[];
+			for (var i=0; i<nname.length; i++) {	
+				nvalue[i] = '';
+				for (var j=i; j<sname.length; j++) {
+					if (sname[j] == nname[i]) {
+						if (nname[i] == 'sex') {
+							if (svalue[j]) {
+								nvalue[i] = svalue[j];
+							}
+						} else {
+							if (nname[i] == 'speciality') {
+								if (svalue[j]) {
+									curr.push(svalue[j]);
+									nvalue[i] = curr;
+								}
+							} else {
+								nvalue[i] = svalue[j];
+							}
+						}
+					}
+				}
+			}
+			// object to json
+			var jsonobj = {};
+			for (var i=0; i<nname.length; i++) {
+				eval("jsonobj."+nname[i]+"=nvalue[i];"); 
+			}
+			ws.send(JSON.stringify(jsonobj));
+  		}
 	</script>
 </body>
 </html>
