@@ -5,10 +5,15 @@ set(CMAKE_CXX_STANDARD 11)
 
 #set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include_directories(~/Desktop/ngx_html/dev/websocketpp
- ~/Desktop/ngx_html/dev//rapidjson/include)
+#include_directories(~/Desktop/ngx_html/dev/websocketpp
+# ~/Desktop/ngx_html/dev//rapidjson/include)
 
-link_directories(/usr/lib/x86_64-linux-gnu/)
+include_directories(${PROJECT_SOURCE_DIR}
+${PROJECT_SOURCE_DIR}/rapidjson/include
+/home/svandex/Documents/mysql-connector-c++/include)
+
+link_directories(/usr/lib/x86_64-linux-gnu/
+/home/svandex/Documents/mysql-connector-c++/lib64)
 
 add_executable(wstest test.cpp)
-target_link_libraries(wstest boost_system)
+target_link_libraries(wstest boost_system mysqlcppconn8)
