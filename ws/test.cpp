@@ -17,7 +17,7 @@ using websocketpp::lib::placeholders::_2;
 
 void on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr msg)
 {
-    //std::cout << msg->get_payload() << std::endl;
+//    std::cout << msg->get_payload() << std::endl;
 
     rapidjson::Document d;
     if (d.Parse(msg->get_payload().c_str()).HasParseError())
@@ -25,7 +25,6 @@ void on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr 
         s->send(hdl, "parse error", websocketpp::frame::opcode::TEXT);
         return;
     }
-    std::cout << d["gender"].GetBool()<< std::endl;
 
     //MYSQL
     mysqlx::Session mysql_ss("localhost", 33060, "svandex", "y1ban@Hust");
@@ -38,17 +37,19 @@ void on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr 
     }
     */
 
-    std::string wt = "1";
-    if (d["gender"].GetBool())
+    std::string wt = "true";
+    if (std::strcmp(d["sex"].GetString(),"female")==0)
     {
-        wt = "0";
+        wt = "false";
     }
-    std::string sql_stm = "insert table staffmgr(name,password,email,gender,speciality) values(" + std::string(d["name"].GetString()) + std::string(d["password"].GetString()) + d["email"].GetString() + wt + d["speciality"][0].GetString() + ");";
+    std::string sql_stm = "insert into staffmgr(name,password,email,gender,speciality) values('" + std::string(d["name"].GetString())+"','" + std::string(d["password"].GetString())+"','" + std::string(d["email"].GetString())+"'," + wt+",'" + d["speciality"][0].GetString() + "');";
 
     std::cout << sql_stm << std::endl;
 
-    auto rsets = mysql_ss.sql(sql_stm).execute();
-    std::wcout << rsets.getWarning(0).getMessage().c_str();
+    mysql_ss.sql("use funtestdemo;").execute();
+
+    auto rsets = mysql_ss.sql(sql_stm.c_str()).execute();
+    //std::wcout << rsets.getWarning(0).getMessage().c_str();
 
     try
     {
