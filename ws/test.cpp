@@ -10,6 +10,8 @@
 
 #include <mysqlx/xdevapi.h>
 
+#include <signal.h>
+
 typedef websocketpp::server<websocketpp::config::asio> server;
 using websocketpp::lib::bind;
 using websocketpp::lib::placeholders::_1;
@@ -17,11 +19,11 @@ using websocketpp::lib::placeholders::_2;
 
 void on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr msg) try
 {
-    //    std::cout << msg->get_payload() << std::endl;
+    std::cout << msg->get_payload() << std::endl;
     try
     {
-        rapidjson::Document d;
-        if (d.Parse(msg->get_payload().c_str()).HasParseError())
+        rapidjson::Document dall;
+        if (dall.Parse(msg->get_payload().c_str()).HasParseError())
         {
             s->send(hdl, "{\"rapidjson\":\"parse error\"}", websocketpp::frame::opcode::TEXT);
             return;
@@ -29,6 +31,60 @@ void on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr 
 
         //MYSQL
         mysqlx::Session mysql_ss("localhost", 33060, "svandex", "y1ban@Hust");
+        mysql_ss.sql("use funtestdemo;").execute();
+
+        rapidjson::Value d;
+        if (dall.HasMember("data"))
+        {
+            d = dall["data"].GetObject();
+        }
+
+        if (dall.HasMember("mysql"))
+        {
+            auto mysql_stm = dall["mysql"].GetString();
+            auto rsets = mysql_ss.sql(std::string(mysql_stm)).execute();
+            if (rsets.hasData())
+            {
+                mysqlx::Row r;
+                rapidjson::StringBuffer sb;
+                rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
+                writer.StartObject();
+                int indx = 0;
+                while (r = rsets.fetchOne())
+                {
+                    writer.Key(std::to_string(indx).c_str());
+                    writer.StartArray();
+                    for (unsigned tmp = 0; tmp < r.colCount(); tmp++)
+                    {
+                        if (r[tmp].getType() == mysqlx::Value::Type::INT64)
+                        {
+                            writer.Int(int(r[tmp]));
+                        }
+                        else
+                        {
+                            writer.String(std::string(r[tmp]).c_str());
+                        }
+                    }
+                    writer.EndArray();
+                    indx++;
+                }
+                writer.EndObject();
+
+                s->send(hdl, std::string(sb.GetString()), websocketpp::frame::opcode::TEXT);
+                return;
+            }
+        }
+
+        if (d.HasMember("name"))
+        { // mysql database funtestdemo PRIMARY key
+            s->send(hdl, "{\"rapidjson\":\"success\"}", websocketpp::frame::opcode::TEXT);
+        }
+        else
+        {
+            s->send(hdl, "{\"rapidjson\":\"failed, no member called name.\"}", websocketpp::frame::opcode::TEXT);
+            return;
+        }
+
         /*
     std::list<mysqlx::Schema> schemaList = mysql_ss.getSchemas();
 
@@ -46,10 +102,10 @@ void on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr 
 
         std::string spc_str = "";
         auto num = d["speciality"].Size();
-        std::cout<<num<<std::endl;
+        std::cout << num << std::endl;
         for (int i = 0; i < num; i++)
         {
-            if (i < num-1)
+            if (i < num - 1)
             {
                 spc_str = spc_str + d["speciality"][i].GetString() + ",";
             }
@@ -60,10 +116,6 @@ void on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr 
         }
 
         std::string sql_stm = "insert into staffmgr(name,password,email,gender,speciality) values('" + std::string(d["name"].GetString()) + "','" + std::string(d["password"].GetString()) + "','" + std::string(d["email"].GetString()) + "'," + wt + ",'" + spc_str + "');";
-
-        std::cout << sql_stm << std::endl;
-
-        mysql_ss.sql("use funtestdemo;").execute();
 
         auto rsets = mysql_ss.sql(sql_stm.c_str()).execute();
         //std::wcout << rsets.getWarning(0).getMessage().c_str();
@@ -76,7 +128,7 @@ void on_message(server *s, websocketpp::connection_hdl hdl, server::message_ptr 
     {
         std::cout << "mysql error: " << std::endl
                   << e.what() << std::endl;
-        s->send(hdl, "{\"mysql\":\"error\"}", websocketpp::frame::opcode::TEXT);
+        s->send(hdl, "{\"mysql\":\"error \"" + std::string(e.what()) + "}", websocketpp::frame::opcode::TEXT);
     }
     /*
     try
@@ -138,10 +190,22 @@ int main(int argc, char *argv[])
         tvrig_server.listen(websocketpp::lib::asio::ip::tcp::v4(), 9002);
         tvrig_server.start_accept();
 
-        tvrig_server.run();
+        //tvrig_server.run();
+        std::thread t(&server::run, &tvrig_server);
+        t.detach();
+        char x;
+        std::cin >> x;
+        tvrig_server.stop_listening();
+        tvrig_server.stop_perpetual();
     }
     catch (websocketpp::exception &e)
     {
-        std::wcout << e.what() << std::endl;
+        std::wcout << "websocketpp: " << std::endl
+                   << e.what() << std::endl;
+    }
+    catch (std::exception &e)
+    {
+        std::wcout << "std: " << std::endl
+                   << e.what() << std::endl;
     }
 }
