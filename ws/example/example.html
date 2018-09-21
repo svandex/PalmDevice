@@ -12,13 +12,4 @@
 		<frame src="speexp.html" frameborder="0"></frame>
 	</frameset>
 </frameset>
-<script type="text/javascript">
-	var ws = new WebSocket("ws://localhost:9002");
-	ws.onopen = function() {
-		alert("WS Open");
-	}
-	ws.onmessage=function(e){
-		//alert(e.data);
-	}
-</script>
 </html>

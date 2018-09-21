@@ -3,13 +3,11 @@ project(wstest)
 
 set(CMAKE_CXX_STANDARD 11)
 
-#set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-#include_directories(~/Desktop/ngx_html/dev/websocketpp
-# ~/Desktop/ngx_html/dev//rapidjson/include)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include_directories(${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/rapidjson/include
+${PROJECT_SOURCE_DIR}/websocketpp
 /home/svandex/Documents/mysql-connector-c++/include)
 
 link_directories(/usr/lib/x86_64-linux-gnu/

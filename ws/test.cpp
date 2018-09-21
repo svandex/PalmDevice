@@ -192,11 +192,11 @@ int main(int argc, char *argv[])
 
         //tvrig_server.run();
         std::thread t(&server::run, &tvrig_server);
-        t.detach();
         char x;
         std::cin >> x;
         tvrig_server.stop_listening();
-        tvrig_server.stop_perpetual();
+        tvrig_server.stop();
+        t.join();
     }
     catch (websocketpp::exception &e)
     {

@@ -24,7 +24,7 @@
 	</div>
 	<h2>信息汇总：</h2>
 	<script type="text/javascript">
-		var ws = new WebSocket("ws://localhost:9002");
+		var ws = new WebSocket("ws://"+document.location.hostname+":9002");
 		ws.onopen = function() {
 			alert("WS Open");
 		}
